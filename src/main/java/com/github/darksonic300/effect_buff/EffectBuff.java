@@ -6,6 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -64,7 +67,7 @@ public class EffectBuff {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static final long ANIMATION_DURATION_MS = 1000L; // 1 second duration for the rising cuboid
+    public static final long ANIMATION_DURATION_MS = 350L; // 1 second duration for the rising cuboid
 
     public record ActiveEffectVisual(MobEffect effect, long startTime) {}
 
@@ -73,6 +76,7 @@ public class EffectBuff {
 
     // List of currently playing 3D visual animations. Public for access by the renderer.
     public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
+
 
     @Mod.EventBusSubscriber(modid = EffectBuff.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ModEventClientBusEvents {
@@ -111,6 +115,7 @@ public class EffectBuff {
                 // Use a small buffer (e.g., 2 ticks) to account for client-side timing.
                 else if (currentDuration > (activeEffectsTracker.get(effect) + 2)) {
                     triggerEffectVisual(effect);
+                    mc.level.playLocalSound(player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1, 1, true);
                 }
 
                 // Add the current effect and its duration to the map for the next tick's comparison
