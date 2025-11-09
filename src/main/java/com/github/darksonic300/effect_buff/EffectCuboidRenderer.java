@@ -21,14 +21,8 @@ import org.joml.Matrix4f;
 @Mod.EventBusSubscriber(modid = EffectBuff.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = net.minecraftforge.api.distmarker.Dist.CLIENT)
 public class EffectCuboidRenderer {
 
-    // The animation duration is sourced from the main EffectBuff class
-    private static final long ANIMATION_DURATION_MS = EffectBuff.ANIMATION_DURATION_MS;
+    private static final long ANIMATION_DURATION_MS = 350L;
 
-    /**
-     * Subscribe to the Render Level Stage event to draw custom 3D geometry.
-     * We use AFTER_ENTITIES to render behind the player's entity, but AFTER_PARTICLES
-     * is often safer for translucent things. Let's stick to AFTER_ENTITIES for now.
-     */
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         // Ensure we are in the correct rendering stage
@@ -125,53 +119,36 @@ public class EffectCuboidRenderer {
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         Matrix4f matrix = poseStack.last().pose();
-
-        // Define the vertices for a 1x1x1 cube at (0, 0, 0)
+        
+        float la = a - 0.4f;
 
         // FRONT FACE (Z = 0)
-//        bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 1, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 0, 1, 0).color(r, g, b, a).endVertex();
-
-        bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        
+        bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, la).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r, g, b, a).endVertex();
         bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r, g, b, a).endVertex();
 
         // BACK FACE (Z = 1)
-//        bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 0, 1, 1).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 1, 1).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 0.5f, 1).color(r, g, b, a).endVertex();
 
-        bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r, g, b, a).endVertex();
         bufferBuilder.vertex(matrix, 1, 0.5f, 1).color(r, g, b, a).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0, 1).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0, 1).color(r, g, b, la).endVertex();
 
         // LEFT FACE (X = 0)
-//        bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 0, 1, 1).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 0, 1, 0).color(r, g, b, a).endVertex();
 
-        bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
-        bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, la).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r, g, b, a).endVertex();
         bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r, g, b, a).endVertex();
 
         // RIGHT FACE (X = 1)
-//        bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 1, 0).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 1, 1f).color(r, g, b, a).endVertex();
-//        bufferBuilder.vertex(matrix, 1, 0.5f, 1f).color(r, g, b, a).endVertex();
-        //a - 0.3f < 0 ? 0 : a - 0.3f
 
-        bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r, g, b, a).endVertex();
         bufferBuilder.vertex(matrix, 1, 0.5f, 1f).color(r, g, b, a).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0, 1f).color(r, g, b, a - 0.3f < 0 ? 0 : a - 0.3f).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0, 1f).color(r, g, b, la).endVertex();
 
         BufferUploader.drawWithShader(bufferBuilder.end());
     }

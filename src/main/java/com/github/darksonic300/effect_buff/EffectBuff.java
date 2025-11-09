@@ -61,15 +61,9 @@ public class EffectBuff {
     public EffectBuff() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        ParticleRegistry.register(modEventBus);
-
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
     }
-
-    public static final long ANIMATION_DURATION_MS = 350L; // 1 second duration for the rising cuboid
-
-    public record ActiveEffectVisual(MobEffect effect, long startTime) {}
 
     // Map to track effects that were active on the previous tick for NEW effect detection.
     private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
@@ -77,6 +71,7 @@ public class EffectBuff {
     // List of currently playing 3D visual animations. Public for access by the renderer.
     public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
+    public record ActiveEffectVisual(MobEffect effect, long startTime) {}
 
     @Mod.EventBusSubscriber(modid = EffectBuff.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ModEventClientBusEvents {
@@ -106,7 +101,7 @@ public class EffectBuff {
                 MobEffect effect = instance.getEffect();
                 int currentDuration = instance.getDuration();
 
-                // Check if the effect is NOT present in the tracker (Scenario 1: Truly New)
+                // Check if the effect is NOT present in the tracker
                 if (!activeEffectsTracker.containsKey(effect)) {
                     triggerEffectVisual(effect);
                 }
