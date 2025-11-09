@@ -6,8 +6,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -71,8 +69,8 @@ public class EffectCuboidRenderer {
             float a = 0.5F;
 
             // Calculate animated properties
-            float baseSize = 1.1F; // Start with a smaller base size
-            float height = 1.1F; // Fixed height
+            float baseSize = 1.15F; // Start with a smaller base size
+            float height = 1.15F; // Fixed height
             float yOffset = progress * 1.7F; // Rises from chest level
 
             // Push the matrix state to isolate transformations for this specific visual
