@@ -29,22 +29,22 @@ public class CuboidModel {
         float g_t = Math.min(1.0F, g + LIGHTEN_FACTOR);
         float b_t = Math.min(1.0F, b + LIGHTEN_FACTOR);
 
-        if(!beneficial){
-            var temp = a;
-            a = la;
-            la = temp;
+        if(!beneficial) {
+            a = a + la;
+            la = a - la;
+            a = a - la;
 
-            temp = r;
-            r = r_t;
-            r_t = temp;
+            r = r + r_t;
+            r_t = r - r_t;
+            r = r - r_t;
 
-            temp = g;
-            g = g_t;
-            g_t = temp;
+            g = g + g_t;
+            g_t = g - g_t;
+            g = g - g_t;
 
-            temp = b;
-            b = b_t;
-            b_t = temp;
+            b = b + b_t;
+            b_t = b - b_t;
+            b = b - b_t;
         }
 
         // FRONT FACE (Z = 0)

@@ -29,7 +29,6 @@ public class CuboidVFXRenderer {
             return;
         }
 
-        // Get the PoseStack and the player's camera position
         PoseStack poseStack = event.getPoseStack();
         Camera camera = event.getCamera();
         long currentTime = Util.getMillis();
@@ -74,14 +73,13 @@ public class CuboidVFXRenderer {
             float a = 0.8F;
 
             // Calculate animated properties
-            float baseSize = 1.15F; // Start with a smaller base size
-            float height = 1.15F; // Fixed height
+            float baseSize = 1.15F;
+            //float height = 1.15F;
             float yOffset = progress * 1.7F;
 
             // Push the matrix state to isolate transformations for this specific visual
             poseStack.pushPose();
 
-            // 1. Translate to the world position (player's feet + animation offset)
             double visualX = player.getX() - (baseSize / 2.0); // Center the cuboid on the player
             double visualZ = player.getZ() - (baseSize / 2.0);
 
@@ -94,7 +92,7 @@ public class CuboidVFXRenderer {
             double z = visualZ - camera.getPosition().z;
 
             poseStack.translate(x, y, z);
-            poseStack.scale(baseSize, height, baseSize);
+            poseStack.scale(baseSize, baseSize, baseSize);
 
             CuboidModel.render(poseStack, r, g, b, a, beneficial);
 
