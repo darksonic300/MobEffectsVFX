@@ -20,7 +20,7 @@ public class CuboidModel {
 
         Matrix4f matrix = poseStack.last().pose();
 
-        float la = a - 0.5f;
+        float la = a - 0.8f;
 
         // Calculate LIGHTER color for the top of the frustum (new!)
         // We increase the base color values towards 1.0 (white) for a glow effect
@@ -51,28 +51,28 @@ public class CuboidModel {
 
         bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, la).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r_t, g_t, b_t, a).endVertex();
-        bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0.7f, 0).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0.7f, 0).color(r_t, g_t, b_t, a).endVertex();
 
         // BACK FACE (Z = 1)
 
         bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, la).endVertex();
-        bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r_t, g_t, b_t, a).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0.5f, 1).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0.7f, 1).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0.7f, 1).color(r_t, g_t, b_t, a).endVertex();
         bufferBuilder.vertex(matrix, 1, 0, 1).color(r, g, b, la).endVertex();
 
         // LEFT FACE (X = 0)
 
         bufferBuilder.vertex(matrix, 0, 0, 0).color(r, g, b, la).endVertex();
         bufferBuilder.vertex(matrix, 0, 0, 1).color(r, g, b, la).endVertex();
-        bufferBuilder.vertex(matrix, 0, 0.5f, 1).color(r_t, g_t, b_t, a).endVertex();
-        bufferBuilder.vertex(matrix, 0, 0.5f, 0).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0.7f, 1).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 0, 0.7f, 0).color(r_t, g_t, b_t, a).endVertex();
 
         // RIGHT FACE (X = 1)
 
         bufferBuilder.vertex(matrix, 1, 0, 0).color(r, g, b, la).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0.5f, 0).color(r_t, g_t, b_t, a).endVertex();
-        bufferBuilder.vertex(matrix, 1, 0.5f, 1f).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0.7f, 0).color(r_t, g_t, b_t, a).endVertex();
+        bufferBuilder.vertex(matrix, 1, 0.7f, 1f).color(r_t, g_t, b_t, a).endVertex();
         bufferBuilder.vertex(matrix, 1, 0, 1f).color(r, g, b, la).endVertex();
 
         BufferUploader.drawWithShader(bufferBuilder.end());
