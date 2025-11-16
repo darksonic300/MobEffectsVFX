@@ -14,7 +14,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -38,6 +40,9 @@ public class MobEffectsVFX {
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,
+                MEVConfig.CLIENT_SPEC);
     }
 
     // Map to track effects that were active on the previous tick for NEW effect detection.
@@ -99,7 +104,6 @@ public class MobEffectsVFX {
     }
 
     private static void triggerEffectVisual(MobEffect effect) {
-        // 1. Try to find an existing visual
         ActiveEffectVisual existing = activeVisuals.stream()
                 .filter(visual -> visual.effect().equals(effect))
                 .findFirst()
