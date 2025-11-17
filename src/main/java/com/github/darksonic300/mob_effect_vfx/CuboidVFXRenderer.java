@@ -77,20 +77,22 @@ public class CuboidVFXRenderer {
             float g = ((color >> 8) & 0xFF) / 255.0F;
             float b = (color & 0xFF) / 255.0F;
 
+            // Base Alpha value for opacity
+            float a = MEVConfig.CLIENT.opacity.get().floatValue();
 
             // Push the matrix state to isolate transformations for this specific visual
             poseStack.pushPose();
             switch(MEVConfig.CLIENT.effect_type.get()) {
-                case "flat" -> flatEffectRendering(poseStack, player, camera, progress, effectCategory, r, g, b);
-                case "stationary" -> stationaryEffectRendering(poseStack, player, camera, progress, r, g, b);
-                default -> risingEffectRendering(poseStack, player, camera, progress, effectCategory, r, g, b);
+                case FLAT -> flatEffectRendering(poseStack, player, camera, progress, effectCategory, new MEVColor(r,g,b,a));
+                case STATIONARY -> stationaryEffectRendering(poseStack, player, camera, progress, new MEVColor(r,g,b,a));
+                default -> risingEffectRendering(poseStack, player, camera, progress, effectCategory, new MEVColor(r,g,b,a));
             }
             poseStack.popPose();
         }
     }
 
-    private static void risingEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, float r, float g, float b) {
-        float a = calculateAlpha(0.8f, 0.05f, progress);
+    private static void risingEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
+        float a = calculateAlpha(color.a(), progress);
 
         // Calculate animated properties
         float baseSize = 1.3F;
@@ -111,11 +113,11 @@ public class CuboidVFXRenderer {
         poseStack.translate(x, y, z);
         poseStack.scale(baseSize, baseSize, baseSize);
 
-        RisingCuboidModel.render(poseStack, r, g, b, a, effectCategory);
+        RisingCuboidModel.render(poseStack, color.r(), color.g(), color.b(), a, effectCategory);
     }
 
-    private static void stationaryEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, float r, float g, float b) {
-        float a = calculateAlpha(1, 0.1f, progress);
+    private static void stationaryEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MEVColor color) {
+        float a = calculateAlpha(color.a(), progress);
 
         // Calculate animated properties
         float baseSize = 1.3F;
@@ -132,11 +134,12 @@ public class CuboidVFXRenderer {
         poseStack.translate(x, y, z);
         poseStack.scale(baseSize, height, baseSize);
 
-        StationaryCuboidModel.render(poseStack, r, g, b, a);
+        StationaryCuboidModel.render(poseStack, color.r(), color.g(), color.b(), a);
     }
 
-    private static void flatEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, float r, float g, float b) {
-        float a = calculateAlpha(0.8f, 0.25f, progress);
+    private static void flatEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
+        float a = calculateAlpha(color.a(), progress);
+        a += 0.1f;
 
         // Calculate animated properties
         float scaleOffset = progress * 1.5F;
@@ -153,11 +156,11 @@ public class CuboidVFXRenderer {
         poseStack.translate(x, y, z);
         poseStack.scale(baseSize, 0, baseSize);
 
-        FlatCuboidModel.render(poseStack, r, g, b, a, effectCategory);
+        FlatCuboidModel.render(poseStack, color.r(), color.g(), color.b(), a, effectCategory);
     }
 
-    private static float calculateAlpha(float alpha, float freq, double progress){
-        return (float) Mth.clamp(0, alpha - (progress - freq) , 1);
+    private static float calculateAlpha(float alpha, double progress){
+        return (float) Mth.clamp(0, alpha * Math.exp(-2.5 * progress) , 1);
     }
 
 }

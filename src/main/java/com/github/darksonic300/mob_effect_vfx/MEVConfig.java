@@ -7,15 +7,22 @@ public class MEVConfig {
 
     public static class Client {
 
-        public final ForgeConfigSpec.ConfigValue<String> effect_type;
+        public final ForgeConfigSpec.DoubleValue opacity;
+        public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
 
         public Client(ForgeConfigSpec.Builder builder) {
             builder.push("Rendering");
+            opacity = builder
+                    .comment("The base opacity for the effects.")
+                    .translation("config." + MobEffectsVFX.MODID + ".opacity")
+                    .defineInRange("Opacity", 0.8d, 0.5, 1);
+            builder.pop();
+
+            builder.push("Rendering");
             effect_type = builder
-                    .comment("Select the type of effect you want to display.",
-                            "Permitted values: rising, stationary, flat")
+                    .comment("Select the type of effect you want to display.")
                     .translation("config." + MobEffectsVFX.MODID + ".effect_type")
-                    .define("Effect Type", "rising");
+                    .defineEnum("Effect Type", EffectTypes.RISING);
             builder.pop();
         }
     }
