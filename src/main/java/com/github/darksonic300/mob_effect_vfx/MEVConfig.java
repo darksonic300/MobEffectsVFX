@@ -1,5 +1,6 @@
 package com.github.darksonic300.mob_effect_vfx;
 
+import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 

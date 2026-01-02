@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.particle;
+package com.github.darksonic300.mob_effect_vfx.registry;
 
 import com.github.darksonic300.mob_effect_vfx.MobEffectsVFX;
 import net.minecraft.core.particles.ParticleType;

@@ -1,9 +1,10 @@
 package com.github.darksonic300.mob_effect_vfx;
 
 import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
-import com.github.darksonic300.mob_effect_vfx.particle.MEVParticles;
+import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
-import com.github.darksonic300.mob_effect_vfx.particle.VisualParticles;
+import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
+import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -45,8 +46,6 @@ public class MobEffectsVFX {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         MEVParticles.register(modEventBus);
-
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,
@@ -54,10 +53,8 @@ public class MobEffectsVFX {
     }
 
 
-    // Map to track effects that were active on the previous tick for NEW effect detection.
     private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
 
-    // List of currently playing 3D visual animations. Public for access by the renderer.
     public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
     public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {}
@@ -66,7 +63,6 @@ public class MobEffectsVFX {
     public static class ForgeClientBusEvents {
         @SubscribeEvent
         public static void registerRenderers(TickEvent.ClientTickEvent event) {
-            // Only run at the end of the client tick
             if (event.phase != TickEvent.Phase.END) {
                 return;
             }
@@ -89,13 +85,11 @@ public class MobEffectsVFX {
                 MobEffect effect = instance.getEffect();
                 int currentDuration = instance.getDuration();
 
-                // Check if the effect is NOT present in the tracker
                 if (!activeEffectsTracker.containsKey(effect)) {
                     triggerEffectVisual(effect);
                 }
+
                 // Check if the effect IS present, but the new duration is greater than the old one
-                // (Scenario 2: Reapplied/Extended)
-                // Use a small buffer (e.g., 2 ticks) to account for client-side timing.
                 else if (currentDuration > (activeEffectsTracker.get(effect) + 2)) {
                     triggerEffectVisual(effect);
 
@@ -113,7 +107,6 @@ public class MobEffectsVFX {
                 currentEffects.put(effect, currentDuration);
             }
 
-            // 2. Update the tracker for the next tick
             activeEffectsTracker.clear();
             activeEffectsTracker.putAll(currentEffects);
         }
@@ -174,6 +167,10 @@ public class MobEffectsVFX {
         return new MEVColor(r, g, b, a);
     }
 
+    private static float randomRange(Random random, float min, float max) {
+        return min + (max - min) * random.nextFloat();
+    }
+
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ModClientBusEvents {
         @SubscribeEvent
@@ -184,10 +181,5 @@ public class MobEffectsVFX {
             Minecraft.getInstance().particleEngine.register(MEVParticles.LOWERING_PARTICLES.get(),
                     LoweringParticles.Provider::new);
         }
-    }
-
-
-    private static float randomRange(Random random, float min, float max) {
-        return min + (max - min) * random.nextFloat();
     }
 }
