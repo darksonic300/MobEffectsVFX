@@ -30,15 +30,11 @@ public class CuboidVFXRenderer {
         ANIMATION_DURATION_MS = MEVConfig.CLIENT.duration.get();
 
         // Ensure we are in the correct rendering stage
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-        if (player == null) {
-            return;
-        }
+        if (player == null) return;
 
         PoseStack poseStack = event.getPoseStack();
         Camera camera = event.getCamera();
@@ -55,7 +51,7 @@ public class CuboidVFXRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
 
-        animationLoop(currentTime, poseStack, player, camera);
+        animationLoop(event, currentTime, poseStack, player, camera);
 
         RenderSystem.depthMask(true);
         RenderSystem.enableCull();
@@ -65,7 +61,7 @@ public class CuboidVFXRenderer {
     /**
      * Handles animation logic for the vfx, the model definition is found in CuboidModel.java
      */
-    private static void animationLoop(long currentTime, PoseStack poseStack, Player player, Camera camera) {
+    private static void animationLoop(RenderLevelStageEvent event, long currentTime, PoseStack poseStack, Player player, Camera camera) {
         for (MobEffectsVFX.ActiveEffectVisual visual : MobEffectsVFX.activeVisuals) {
             MobEffectCategory effectCategory = visual.effect().getCategory();
             long elapsedTime = currentTime - visual.startTime();
@@ -77,30 +73,20 @@ public class CuboidVFXRenderer {
                 continue;
             }
 
-            // Get effect color (use the MobEffect's color for visual theming)
-            int color = visual.effect().getColor();
-            float r = ((color >> 16) & 0xFF) / 255.0F;
-            float g = ((color >> 8) & 0xFF) / 255.0F;
-            float b = (color & 0xFF) / 255.0F;
-
-            // Base Alpha value for opacity
-            float a = MEVConfig.CLIENT.opacity.get().floatValue();
-
             // Push the matrix state to isolate transformations for this specific visual
             poseStack.pushPose();
             switch(MEVConfig.CLIENT.effect_type.get()) {
-                case FLAT -> flatEffectRendering(poseStack, player, camera, progress, effectCategory, new MEVColor(r,g,b,a));
-                case STATIONARY -> stationaryEffectRendering(poseStack, player, camera, progress, new MEVColor(r,g,b,a));
+                case FLAT -> flatEffectRendering(event, poseStack, player, camera, progress, effectCategory, visual.color());
+                case STATIONARY -> stationaryEffectRendering(event, poseStack, player, camera, progress, visual.color());
                 //case GLOW -> glowEffectRendering(poseStack, player, camera, progress, new MEVColor(r,g,b,a));
-                default -> {
-                    risingEffectRendering(poseStack, player, camera, progress, effectCategory, new MEVColor(r,g,b,a));
-                }
+                default -> risingEffectRendering(event, poseStack, player, camera, progress, effectCategory, visual.color());
+
             }
             poseStack.popPose();
         }
     }
 
-    private static void risingEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
+    private static void risingEffectRendering(RenderLevelStageEvent event, PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
 
         float a = calculateAlpha(color.a(), progress);
 
@@ -108,13 +94,13 @@ public class CuboidVFXRenderer {
         float baseSize = 1.3F;
         float yOffset = progress * 1.6F;
 
-        double visualX = player.getX() - (baseSize / 2.0); // Center the cuboid on the player
-        double visualZ = player.getZ() - (baseSize / 2.0);
+        double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the cuboid on the player
+        double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
 
         // Apply camera offset transformation
         double x = visualX - camera.getPosition().x;
 
-        double y = player.getY() - camera.getPosition().y;
+        double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.getPosition().y;
 
         y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
 
@@ -126,19 +112,19 @@ public class CuboidVFXRenderer {
         RisingCuboidModel.render(poseStack, color.r(), color.g(), color.b(), a, effectCategory);
     }
 
-    private static void stationaryEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MEVColor color) {
+    private static void stationaryEffectRendering(RenderLevelStageEvent event, PoseStack poseStack, Player player, Camera camera, float progress, MEVColor color) {
         float a = calculateAlpha(color.a(), progress);
 
         // Calculate animated properties
         float baseSize = 1.3F;
         float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-        double visualX = player.getX() - (baseSize / 2.0); // Center the cuboid on the player
-        double visualZ = player.getZ() - (baseSize / 2.0);
+        double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the cuboid on the player
+        double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
 
         // Apply camera offset transformation
         double x = visualX - camera.getPosition().x;
-        double y = player.getY() - camera.getPosition().y;
+        double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.getPosition().y;
         double z = visualZ - camera.getPosition().z;
 
         poseStack.translate(x, y, z);
@@ -147,7 +133,7 @@ public class CuboidVFXRenderer {
         StationaryCuboidModel.render(poseStack, color.r(), color.g(), color.b(), a);
     }
 
-    private static void flatEffectRendering(PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
+    private static void flatEffectRendering(RenderLevelStageEvent event, PoseStack poseStack, Player player, Camera camera, float progress, MobEffectCategory effectCategory, MEVColor color) {
         float a = calculateAlpha(color.a(), progress);
         a += 0.1f;
 
@@ -155,12 +141,12 @@ public class CuboidVFXRenderer {
         float scaleOffset = progress * 1.5F;
         float baseSize = effectCategory == MobEffectCategory.HARMFUL ? (1.3F * 1.5F) - scaleOffset : 1.3F * scaleOffset;
 
-        double visualX = player.getX() - (baseSize / 2.0); // Center the cuboid on the player
-        double visualZ = player.getZ() - (baseSize / 2.0);
+        double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the cuboid on the player
+        double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
 
         // Apply camera offset transformation
         double x = visualX - camera.getPosition().x;
-        double y = player.getY() - camera.getPosition().y + 0.01D;
+        double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.getPosition().y + 0.01D;
         double z = visualZ - camera.getPosition().z;
 
         poseStack.translate(x, y, z);
@@ -176,12 +162,12 @@ public class CuboidVFXRenderer {
 //        float baseSize = 1.3F;
 //        float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 //
-//        double visualX = player.getX() - (baseSize / 2.0); // Center the cuboid on the player
-//        double visualZ = player.getZ() - (baseSize / 2.0);
+//        double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the cuboid on the player
+//        double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
 //
 //        // Apply camera offset transformation
 //        double x = visualX - camera.getPosition().x;
-//        double y = player.getY() - camera.getPosition().y;
+//        double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.getPosition().y;
 //        double z = visualZ - camera.getPosition().z;
 //
 //        poseStack.translate(x, y, z);

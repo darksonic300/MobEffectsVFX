@@ -60,7 +60,7 @@ public class MobEffectsVFX {
     // List of currently playing 3D visual animations. Public for access by the renderer.
     public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
-    public record ActiveEffectVisual(MobEffect effect, long startTime) {}
+    public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {}
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientBusEvents {
@@ -150,13 +150,28 @@ public class MobEffectsVFX {
                 .findFirst()
                 .orElse(null);
 
+        MEVColor color = getEffectColor(effect);
+
         if (existing != null) {
             activeVisuals.remove(existing);
-            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis()));
+            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
         } else {
             // 3. If not found, add a new one
-            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis()));
+            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
         }
+    }
+
+    private static MEVColor getEffectColor(MobEffect effect) {
+        // Get effect color (use the MobEffect's color for visual theming)
+        int color = effect.getColor();
+        float r = ((color >> 16) & 0xFF) / 255.0F;
+        float g = ((color >> 8) & 0xFF) / 255.0F;
+        float b = (color & 0xFF) / 255.0F;
+
+        // Base Alpha value for opacity
+        float a = MEVConfig.CLIENT.opacity.get().floatValue();
+
+        return new MEVColor(r, g, b, a);
     }
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
