@@ -57,9 +57,7 @@ public class ClientSideRenderEvent {
             float progress = (float) elapsedTime / ANIMATION_DURATION_MS;
 
             // Stop rendering if the animation is finished (cleanup is handled in ClientTick)
-            if (progress >= 1.0F) {
-                return;
-            }
+            if (progress >= 1.0F) return;
 
             // Push the matrix state to isolate transformations for this specific visual
             poseStack.pushPose();
