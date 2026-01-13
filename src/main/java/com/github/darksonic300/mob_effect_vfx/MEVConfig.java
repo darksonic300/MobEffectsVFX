@@ -34,6 +34,8 @@ public class MEVConfig {
                     .translation("config." + MobEffectsVFX.MODID + ".effect_type")
                     .defineEnum("Effect Type", EffectTypes.RISING);
             builder.pop();
+
+            builder.push("Rendering");
             refresh_cooldown = builder
                     .comment("Select the type of effect you want to display.")
                     .translation("config." + MobEffectsVFX.MODID + ".refresh_cooldown")
