@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -39,6 +41,12 @@ public class MobEffectsVFX {
     public static final String MODID = "mob_effects_vfx";
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
+
+    public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
+
+    public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {}
+
     public MobEffectsVFX() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -48,13 +56,6 @@ public class MobEffectsVFX {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,
                 MEVConfig.CLIENT_SPEC);
     }
-
-
-    private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
-
-    public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
-
-    public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {}
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientBusEvents {
@@ -66,7 +67,6 @@ public class MobEffectsVFX {
 
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null || mc.player == null) {
-                // Clear state if we leave a world
                 if (!activeEffectsTracker.isEmpty())
                     activeEffectsTracker.clear();
                 if (!activeVisuals.isEmpty())
@@ -76,23 +76,25 @@ public class MobEffectsVFX {
             LocalPlayer player = mc.player;
 
             Map<MobEffect, Integer> currentEffects = new HashMap<>();
+            List<MobEffect> blacklist = MEVConfig.CLIENT.blacklist.get().stream().map(
+                    (entry) ->
+                            ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get()
+            ).toList();
 
-            // 1. Check for newly applied or REAPPLIED effects
             for (MobEffectInstance instance : player.getActiveEffects()) {
                 MobEffect effect = instance.getEffect();
                 int currentDuration = instance.getDuration();
+                if(blacklist.contains(effect)) continue;
 
                 if (!activeEffectsTracker.containsKey(effect)) {
                     triggerEffectVFX(effect);
                     triggerSoundAndParticles(mc, player, effect);
                 }
-                // Check if the effect IS present, but the new duration is greater than the old one
                 else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
                     triggerEffectVFX(effect);
                     triggerSoundAndParticles(mc, player, effect);
                 }
 
-                // Add the current effect and its duration to the map for the next tick's comparison
                 currentEffects.put(effect, currentDuration);
             }
 

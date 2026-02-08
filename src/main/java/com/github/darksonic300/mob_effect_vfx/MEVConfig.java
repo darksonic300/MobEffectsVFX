@@ -1,8 +1,12 @@
 package com.github.darksonic300.mob_effect_vfx;
 
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
 
 public class MEVConfig {
 
@@ -12,6 +16,7 @@ public class MEVConfig {
         public final ForgeConfigSpec.DoubleValue opacity;
         public final ForgeConfigSpec.IntValue refresh_cooldown;
         public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklist;
 
         public Client(ForgeConfigSpec.Builder builder) {
             builder.push("Rendering");
@@ -37,9 +42,20 @@ public class MEVConfig {
 
             builder.push("Rendering");
             refresh_cooldown = builder
-                    .comment("Select the type of effect you want to display.")
+                    .comment("Set the cooldown time for the effects to show on apply.")
                     .translation("config." + MobEffectsVFX.MODID + ".refresh_cooldown")
                     .defineInRange("Duration", 150, 0, 5000);
+            builder.pop();
+
+            builder.push("Rendering");
+            blacklist = builder
+                    .comment("A list of effects you want to exclude from the mod.")
+                    .translation("config." + MobEffectsVFX.MODID + ".blacklist")
+                    .defineList(
+                            "List",
+                            List.of(),
+                            obj -> ResourceLocation.isValidResourceLocation((String) obj)
+                    );
             builder.pop();
         }
     }
