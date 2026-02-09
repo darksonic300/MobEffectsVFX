@@ -3,10 +3,10 @@ package com.github.darksonic300.mob_effect_vfx;
 import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
-import com.github.darksonic300.mob_effect_vfx.util.ActivationTriggers;
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -14,34 +14,32 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 
 @Mod(MobEffectsVFX.MODID)
-@OnlyIn(Dist.CLIENT)
 public class MobEffectsVFX {
     public static final String MODID = "mob_effects_vfx";
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -64,8 +62,8 @@ public class MobEffectsVFX {
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientBusEvents {
-        private static final List<MobEffect> blacklist = Lists.newArrayList();
-        private static final List<MobEffect> potions = Lists.newArrayList();
+        private static final HashSet<MobEffect> blacklist = Sets.newHashSet();
+        //private static final List<MobEffect> potions = Lists.newArrayList();
 
         /* TODO: Filtering Effect Activation (potions, active, passive...)
         @SubscribeEvent
@@ -87,25 +85,15 @@ public class MobEffectsVFX {
             if (event.phase != TickEvent.Phase.END) {
                 return;
             }
-
             Minecraft mc = Minecraft.getInstance();
             if (mc.level == null || mc.player == null) {
-                if (!activeEffectsTracker.isEmpty())
-                    activeEffectsTracker.clear();
-                if (!activeVisuals.isEmpty())
-                    activeVisuals.clear();
+                activeEffectsTracker.clear();
+                activeVisuals.clear();
                 return;
             }
             LocalPlayer player = mc.player;
 
             Map<MobEffect, Integer> currentEffects = new HashMap<>();
-
-            blacklist.addAll(
-                MEVConfig.CLIENT.blacklist.get().stream().map(
-                (entry) ->
-                        ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get()
-                ).toList()
-            );
 
             for (MobEffectInstance instance : player.getActiveEffects()) {
                 MobEffect effect = instance.getEffect();
@@ -143,7 +131,7 @@ public class MobEffectsVFX {
         if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING)) return;
 
         var particle = effect.isBeneficial() ? MEVParticles.RISING_PARTICLES.get() : MEVParticles.LOWERING_PARTICLES.get();
-        var random = new Random();
+        var random = player.level().random;
         for (int i = 0; i < 3; i++) {
             player.level().addParticle(
                     particle,
@@ -172,13 +160,10 @@ public class MobEffectsVFX {
 
         MEVColor color = getEffectColor(effect);
 
-        if (existing != null) {
+        if (existing != null)
             activeVisuals.remove(existing);
-            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
-        } else {
-            // 3. If not found, add a new one
-            activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
-        }
+
+        activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
     }
 
     private static MEVColor getEffectColor(MobEffect effect) {
@@ -194,7 +179,7 @@ public class MobEffectsVFX {
         return new MEVColor(r, g, b, a);
     }
 
-    private static float randomRange(Random random, float min, float max) {
+    private static float randomRange(RandomSource random, float min, float max) {
         return min + (max - min) * random.nextFloat();
     }
 
@@ -207,6 +192,17 @@ public class MobEffectsVFX {
 
             Minecraft.getInstance().particleEngine.register(MEVParticles.LOWERING_PARTICLES.get(),
                     LoweringParticles.Provider::new);
+        }
+
+        @SubscribeEvent
+        public static void onConfigLoad(final ModConfigEvent event) {
+            ForgeClientBusEvents.blacklist.clear();
+            ForgeClientBusEvents.blacklist.addAll(
+                    MEVConfig.CLIENT.blacklist.get().stream()
+                            .map(entry ->
+                                    ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get())
+                            .toList()
+            );
         }
     }
 }
