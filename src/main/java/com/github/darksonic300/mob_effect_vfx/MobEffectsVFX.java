@@ -3,8 +3,10 @@ package com.github.darksonic300.mob_effect_vfx;
 import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
+import com.github.darksonic300.mob_effect_vfx.util.ActivationTriggers;
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
+import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -14,11 +16,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -59,6 +64,24 @@ public class MobEffectsVFX {
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ForgeClientBusEvents {
+        private static final List<MobEffect> blacklist = Lists.newArrayList();
+        private static final List<MobEffect> potions = Lists.newArrayList();
+
+        /* TODO: Filtering Effect Activation (potions, active, passive...)
+        @SubscribeEvent
+        public static void registerRenderers(LivingEntityUseItemEvent event) {
+            if(!(event.getItem().getItem() instanceof PotionItem)) return;
+
+            if(MEVConfig.CLIENT.action.get() == ActivationTriggers.PASSIVE)
+                potions.addAll(
+                        PotionUtils.getMobEffects(event.getItem())
+                        .stream().map(MobEffectInstance::getEffect).toList()
+            );
+
+        }
+
+         */
+
         @SubscribeEvent
         public static void registerRenderers(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) {
@@ -76,15 +99,21 @@ public class MobEffectsVFX {
             LocalPlayer player = mc.player;
 
             Map<MobEffect, Integer> currentEffects = new HashMap<>();
-            List<MobEffect> blacklist = MEVConfig.CLIENT.blacklist.get().stream().map(
-                    (entry) ->
-                            ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get()
-            ).toList();
+
+            blacklist.addAll(
+                MEVConfig.CLIENT.blacklist.get().stream().map(
+                (entry) ->
+                        ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get()
+                ).toList()
+            );
 
             for (MobEffectInstance instance : player.getActiveEffects()) {
                 MobEffect effect = instance.getEffect();
                 int currentDuration = instance.getDuration();
-                if(blacklist.contains(effect)) continue;
+
+                if(blacklist.contains(effect)
+                        //|| potions.contains(effect)
+                ) continue;
 
                 if (!activeEffectsTracker.containsKey(effect)) {
                     triggerEffectVFX(effect);
@@ -97,6 +126,8 @@ public class MobEffectsVFX {
 
                 currentEffects.put(effect, currentDuration);
             }
+
+            //potions.clear();
 
             activeEffectsTracker.clear();
             activeEffectsTracker.putAll(currentEffects);
