@@ -44,10 +44,6 @@ public class MobEffectsVFX {
     public static final String MODID = "mob_effects_vfx";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
-
-    public static final List<ActiveEffectVisual> activeVisuals = new ArrayList<>();
-
     public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {}
 
     public MobEffectsVFX() {
@@ -58,127 +54,6 @@ public class MobEffectsVFX {
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,
                 MEVConfig.CLIENT_SPEC);
-    }
-
-    @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-    public static class ForgeClientBusEvents {
-        private static final HashSet<MobEffect> blacklist = Sets.newHashSet();
-        //private static final List<MobEffect> potions = Lists.newArrayList();
-
-        /* TODO: Filtering Effect Activation (potions, active, passive...)
-        @SubscribeEvent
-        public static void registerRenderers(LivingEntityUseItemEvent event) {
-            if(!(event.getItem().getItem() instanceof PotionItem)) return;
-
-            if(MEVConfig.CLIENT.action.get() == ActivationTriggers.PASSIVE)
-                potions.addAll(
-                        PotionUtils.getMobEffects(event.getItem())
-                        .stream().map(MobEffectInstance::getEffect).toList()
-            );
-
-        }
-
-         */
-
-        @SubscribeEvent
-        public static void registerRenderers(TickEvent.ClientTickEvent event) {
-            if (event.phase != TickEvent.Phase.END) {
-                return;
-            }
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.level == null || mc.player == null) {
-                activeEffectsTracker.clear();
-                activeVisuals.clear();
-                return;
-            }
-            LocalPlayer player = mc.player;
-
-            Map<MobEffect, Integer> currentEffects = new HashMap<>();
-
-            for (MobEffectInstance instance : player.getActiveEffects()) {
-                MobEffect effect = instance.getEffect();
-                int currentDuration = instance.getDuration();
-
-                if(blacklist.contains(effect)
-                        //|| potions.contains(effect)
-                ) continue;
-
-                if (!activeEffectsTracker.containsKey(effect)) {
-                    triggerEffectVFX(effect);
-                    triggerSoundAndParticles(mc, player, effect);
-                }
-                else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
-                    triggerEffectVFX(effect);
-                    triggerSoundAndParticles(mc, player, effect);
-                }
-
-                currentEffects.put(effect, currentDuration);
-            }
-
-            //potions.clear();
-
-            activeEffectsTracker.clear();
-            activeEffectsTracker.putAll(currentEffects);
-        }
-    }
-
-    private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
-        mc.level.playLocalSound(player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1, 1, true);
-        spawnParticles(effect, player, getEffectColor(effect));
-    }
-
-    private static void spawnParticles(MobEffect effect, LocalPlayer player, MEVColor color) {
-        if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING)) return;
-
-        var particle = effect.isBeneficial() ? MEVParticles.RISING_PARTICLES.get() : MEVParticles.LOWERING_PARTICLES.get();
-        var random = player.level().random;
-        for (int i = 0; i < 3; i++) {
-            player.level().addParticle(
-                    particle,
-                    player.getX() + randomRange(random, -0.8f, 0f),
-                    player.getY() + 1 + randomRange(random, 0f, 0.6f),
-                    player.getZ() + randomRange(random, 0f, 0.8f),
-                    color.r(), color.g(), color.b()
-            );
-        }
-        for (int i = 0; i < 3; i++) {
-            player.level().addParticle(
-                    particle,
-                    player.getX() + randomRange(random, 0f, 0.8f),
-                    player.getY() + 1 + randomRange(random, -0.6f, 0f),
-                    player.getZ() + randomRange(random, -0.8f, 0f),
-                    color.r(), color.g(), color.b()
-            );
-        }
-    }
-
-    private static void triggerEffectVFX(MobEffect effect) {
-        ActiveEffectVisual existing = activeVisuals.stream()
-                .filter(visual -> visual.effect().equals(effect))
-                .findFirst()
-                .orElse(null);
-
-        MEVColor color = getEffectColor(effect);
-
-        if (existing != null)
-            activeVisuals.remove(existing);
-
-        activeVisuals.add(new ActiveEffectVisual(effect, Util.getMillis(), color));
-    }
-
-    private static MEVColor getEffectColor(MobEffect effect) {
-        int color = effect.getColor();
-        float r = ((color >> 16) & 0xFF) / 255.0F;
-        float g = ((color >> 8) & 0xFF) / 255.0F;
-        float b = (color & 0xFF) / 255.0F;
-
-        float a = MEVConfig.CLIENT.opacity.get().floatValue();
-
-        return new MEVColor(r, g, b, a);
-    }
-
-    private static float randomRange(RandomSource random, float min, float max) {
-        return min + (max - min) * random.nextFloat();
     }
 
     @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -194,8 +69,8 @@ public class MobEffectsVFX {
 
         @SubscribeEvent
         public static void onConfigLoad(final ModConfigEvent event) {
-            ForgeClientBusEvents.blacklist.clear();
-            ForgeClientBusEvents.blacklist.addAll(
+            ClientSideRenderEvent.blacklist.clear();
+            ClientSideRenderEvent.blacklist.addAll(
                     MEVConfig.CLIENT.blacklist.get().stream()
                             .map(entry ->
                                     ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get())

@@ -74,7 +74,7 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    runtimeOnly fg.deobf("curse.maven:configured-457570:5180900")
+    //implementation fg.deobf("curse.maven:configured-457570:5180900")
 }
 
 tasks.named('processResources', ProcessResources).configure {

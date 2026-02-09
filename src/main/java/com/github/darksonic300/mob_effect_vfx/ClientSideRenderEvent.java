@@ -1,33 +1,111 @@
 package com.github.darksonic300.mob_effect_vfx;
 
 import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
+import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
+import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
+import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
+import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientSideRenderEvent {
-
     private static long ANIMATION_DURATION_MS;
+
+    private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
+    public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
+
+    public static final HashSet<MobEffect> blacklist = Sets.newHashSet();
+    //private static final List<MobEffect> potions = Lists.newArrayList();
+
+        /* TODO: Filtering Effect Activation (potions, active, passive...)
+        @SubscribeEvent
+        public static void registerRenderers(LivingEntityUseItemEvent event) {
+            if(!(event.getItem().getItem() instanceof PotionItem)) return;
+
+            if(MEVConfig.CLIENT.action.get() == ActivationTriggers.PASSIVE)
+                potions.addAll(
+                        PotionUtils.getMobEffects(event.getItem())
+                        .stream().map(MobEffectInstance::getEffect).toList()
+            );
+
+        }
+
+         */
+
+    @SubscribeEvent
+    public static void registerRenderers(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) {
+            activeEffectsTracker.clear();
+            activeVisuals.clear();
+            return;
+        }
+        LocalPlayer player = mc.player;
+
+
+        Map<MobEffect, Integer> currentEffects = new HashMap<>();
+
+        for (MobEffectInstance instance : player.getActiveEffects()) {
+            MobEffect effect = instance.getEffect();
+            int currentDuration = instance.getDuration();
+
+            if(blacklist.contains(effect)
+                //|| potions.contains(effect)
+            ) continue;
+
+            if (!activeEffectsTracker.containsKey(effect)) {
+                triggerEffectVFX(effect);
+                triggerSoundAndParticles(mc, player, effect);
+            }
+            else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
+                triggerEffectVFX(effect);
+                triggerSoundAndParticles(mc, player, effect);
+            }
+
+            currentEffects.put(effect, currentDuration);
+        }
+
+        //potions.clear();
+
+        activeEffectsTracker.clear();
+        activeEffectsTracker.putAll(currentEffects);
+    }
+
 
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
         ANIMATION_DURATION_MS = MEVConfig.CLIENT.duration.get();
 
-        // Ensure we are in the correct rendering stage
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || MobEffectsVFX.activeVisuals.isEmpty()) return;
+        if (mc.player == null || activeVisuals.isEmpty()) return;
 
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
@@ -39,7 +117,8 @@ public class ClientSideRenderEvent {
 
         poseStack.pushPose();
 
-        for (MobEffectsVFX.ActiveEffectVisual visual : MobEffectsVFX.activeVisuals) {
+        var copy = List.copyOf(activeVisuals);
+        for (MobEffectsVFX.ActiveEffectVisual visual : copy) {
             animationLoop(event, renderer, bufferSource, visual, currentTime, poseStack, mc.player, cameraPos);
         }
 
@@ -56,14 +135,66 @@ public class ClientSideRenderEvent {
             // Calculate animation progress (0.0 to 1.0)
             float progress = (float) elapsedTime / ANIMATION_DURATION_MS;
 
-            // Stop rendering if the animation is finished (cleanup is handled in ClientTick)
-            if (progress >= 1.0F) return;
+            if (progress >= 1.0F) {
+                activeVisuals.remove(visual);
+                return;
+            }
 
-            // Push the matrix state to isolate transformations for this specific visual
             poseStack.pushPose();
             renderer.startRendering(bufferSource, event, poseStack, player, camera, progress, effectCategory, visual.color());
             poseStack.popPose();
     }
+
+
+    private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
+        mc.level.playLocalSound(player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1, 1, true);
+        spawnParticles(effect, player, getEffectColor(effect));
+    }
+
+    private static void spawnParticles(MobEffect effect, LocalPlayer player, MEVColor color) {
+        if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING)) return;
+
+        var particle = effect.isBeneficial() ? MEVParticles.RISING_PARTICLES.get() : MEVParticles.LOWERING_PARTICLES.get();
+        var random = player.level().random;
+        for (int i = 0; i < 3; i++) {
+            player.level().addParticle(
+                    particle,
+                    player.getX() + randomRange(random, -0.8f, 0f),
+                    player.getY() + 1 + randomRange(random, 0f, 0.6f),
+                    player.getZ() + randomRange(random, 0f, 0.8f),
+                    color.r(), color.g(), color.b()
+            );
+        }
+        for (int i = 0; i < 3; i++) {
+            player.level().addParticle(
+                    particle,
+                    player.getX() + randomRange(random, 0f, 0.8f),
+                    player.getY() + 1 + randomRange(random, -0.6f, 0f),
+                    player.getZ() + randomRange(random, -0.8f, 0f),
+                    color.r(), color.g(), color.b()
+            );
+        }
+    }
+
+        private static void triggerEffectVFX(MobEffect effect) {
+            MEVColor color = getEffectColor(effect);
+            activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(effect, Util.getMillis(), color));
+        }
+
+        private static MEVColor getEffectColor(MobEffect effect) {
+            int color = effect.getColor();
+            float r = ((color >> 16) & 0xFF) / 255.0F;
+            float g = ((color >> 8) & 0xFF) / 255.0F;
+            float b = (color & 0xFF) / 255.0F;
+
+            float a = MEVConfig.CLIENT.opacity.get().floatValue();
+
+            return new MEVColor(r, g, b, a);
+        }
+
+        private static float randomRange(RandomSource random, float min, float max) {
+            return min + (max - min) * random.nextFloat();
+        }
 
 //    private static void glowEffectRendering(PoseStack poseStack, Player player, Vec3 camera, float progress, MEVColor color) {
 //        float a = calculateAlpha(color.a(), progress);
