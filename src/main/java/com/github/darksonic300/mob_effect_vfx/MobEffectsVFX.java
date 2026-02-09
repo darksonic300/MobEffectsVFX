@@ -167,13 +167,11 @@ public class MobEffectsVFX {
     }
 
     private static MEVColor getEffectColor(MobEffect effect) {
-        // Get effect color (use the MobEffect's color for visual theming)
         int color = effect.getColor();
         float r = ((color >> 16) & 0xFF) / 255.0F;
         float g = ((color >> 8) & 0xFF) / 255.0F;
         float b = (color & 0xFF) / 255.0F;
 
-        // Base Alpha value for opacity
         float a = MEVConfig.CLIENT.opacity.get().floatValue();
 
         return new MEVColor(r, g, b, a);
