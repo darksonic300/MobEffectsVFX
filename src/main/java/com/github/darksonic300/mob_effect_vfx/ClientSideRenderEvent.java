@@ -11,6 +11,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -24,6 +26,7 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,6 +150,7 @@ public class ClientSideRenderEvent {
 
 
     private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
+        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(MEVConfig.CLIENT.soundEffect.get()));
         mc.level.playLocalSound(player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1, 1, true);
         spawnParticles(effect, player, getEffectColor(effect));
     }

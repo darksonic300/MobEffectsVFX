@@ -1,7 +1,6 @@
 package com.github.darksonic300.mob_effect_vfx;
 
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
-import com.github.darksonic300.mob_effect_vfx.util.ActivationTriggers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,6 +17,9 @@ public class MEVConfig {
         public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
         //public final ForgeConfigSpec.ConfigValue<ActivationTriggers> action;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklist;
+
+        public final ForgeConfigSpec.ConfigValue<String> soundEffect;
+        public final ForgeConfigSpec.IntValue volume;
 
         public Client(ForgeConfigSpec.Builder builder) {
             builder.push("Rendering");
@@ -66,6 +68,23 @@ public class MEVConfig {
                             List.of(),
                             obj -> ResourceLocation.isValidResourceLocation((String) obj)
                     );
+            builder.pop();
+
+            builder.push("Sound");
+            soundEffect = builder
+                    .comment("Change the sound used when an effect is applied.")
+                    .translation("config." + MobEffectsVFX.MODID + ".sound_effect")
+                    .define(
+                            "Sound Effect",
+                            "minecraft:block.enchantment_table.use",
+                            obj -> ResourceLocation.isValidResourceLocation((String) obj));
+            builder.pop();
+
+            builder.push("Sound");
+            volume = builder
+                    .comment("The volume value for the effect sounds.")
+                    .translation("config." + MobEffectsVFX.MODID + ".volume")
+                    .defineInRange("Volume", 100, 0, 100);
             builder.pop();
         }
     }
