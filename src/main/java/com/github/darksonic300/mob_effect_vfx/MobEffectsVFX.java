@@ -3,25 +3,14 @@ package com.github.darksonic300.mob_effect_vfx;
 import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
-import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -31,12 +20,6 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 
 @Mod(MobEffectsVFX.MODID)
@@ -69,11 +52,12 @@ public class MobEffectsVFX {
 
         @SubscribeEvent
         public static void onConfigLoad(final ModConfigEvent event) {
-            ClientSideRenderEvent.blacklist.clear();
-            ClientSideRenderEvent.blacklist.addAll(
-                    MEVConfig.CLIENT.blacklist.get().stream()
+            ClientSideRenderEvent.blocklist.clear();
+            ClientSideRenderEvent.blocklist.addAll(
+                    MEVConfig.CLIENT.blocklist.get().stream()
                             .map(entry ->
-                                    ForgeRegistries.MOB_EFFECTS.getHolder(ResourceLocation.parse(entry)).get().get())
+                                    ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(entry))
+                            )
                             .toList()
             );
         }

@@ -41,7 +41,7 @@ public class ClientSideRenderEvent {
     private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
     public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
-    public static final HashSet<MobEffect> blacklist = Sets.newHashSet();
+    public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
     //private static final List<MobEffect> potions = Lists.newArrayList();
 
         /* TODO: Filtering Effect Activation (potions, active, passive...)
@@ -78,7 +78,7 @@ public class ClientSideRenderEvent {
             MobEffect effect = instance.getEffect();
             int currentDuration = instance.getDuration();
 
-            if(blacklist.contains(effect)
+            if(blocklist.contains(effect)
                 //|| potions.contains(effect)
             ) continue;
 
@@ -150,8 +150,18 @@ public class ClientSideRenderEvent {
 
 
     private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
-        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(MEVConfig.CLIENT.soundEffect.get()));
-        mc.level.playLocalSound(player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1, 1, true);
+        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(
+                    ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get())
+            );
+
+        mc.level.playLocalSound(
+                player.blockPosition(),
+                sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+                SoundSource.PLAYERS,
+                (float) MEVConfig.CLIENT.volume.get() / 100,
+                1,
+                true
+        );
         spawnParticles(effect, player, getEffectColor(effect));
     }
 
@@ -199,23 +209,4 @@ public class ClientSideRenderEvent {
         private static float randomRange(RandomSource random, float min, float max) {
             return min + (max - min) * random.nextFloat();
         }
-
-//    private static void glowEffectRendering(PoseStack poseStack, Player player, Vec3 camera, float progress, MEVColor color) {
-//        float a = calculateAlpha(color.a(), progress);
-//
-//        // Calculate animated properties
-//        float baseSize = 1.3F;
-//        float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
-//
-//        double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the cuboid on the player
-//        double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
-//
-//        // Apply camera offset transformation
-//        double x = visualX - camera.x;
-//        double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.y;
-//        double z = visualZ - camera.z;
-//
-//        poseStack.translate(x, y, z);
-//        poseStack.scale(baseSize, height, baseSize);
-//    }
 }

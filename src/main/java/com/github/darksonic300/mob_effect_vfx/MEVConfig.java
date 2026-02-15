@@ -16,7 +16,7 @@ public class MEVConfig {
         public final ForgeConfigSpec.IntValue refresh_cooldown;
         public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
         //public final ForgeConfigSpec.ConfigValue<ActivationTriggers> action;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blacklist;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocklist;
 
         public final ForgeConfigSpec.ConfigValue<String> soundEffect;
         public final ForgeConfigSpec.IntValue volume;
@@ -59,12 +59,12 @@ public class MEVConfig {
             builder.pop();
             */
 
-            builder.push("Rendering");
-            blacklist = builder
+            builder.push("General");
+            blocklist = builder
                     .comment("A list of effects you want to exclude.")
                     .translation("config." + MobEffectsVFX.MODID + ".blacklist")
                     .defineList(
-                            "List",
+                            "Blocklist",
                             List.of(),
                             obj -> ResourceLocation.isValidResourceLocation((String) obj)
                     );
@@ -74,10 +74,7 @@ public class MEVConfig {
             soundEffect = builder
                     .comment("Change the sound used when an effect is applied.")
                     .translation("config." + MobEffectsVFX.MODID + ".sound_effect")
-                    .define(
-                            "Sound Effect",
-                            "minecraft:block.enchantment_table.use",
-                            obj -> ResourceLocation.isValidResourceLocation((String) obj));
+                    .define("Sound Effect", "minecraft:block.enchantment_table.use");
             builder.pop();
 
             builder.push("Sound");
