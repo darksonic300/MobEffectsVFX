@@ -3,10 +3,16 @@ package com.github.darksonic300.mob_effect_vfx;
 import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
+import com.github.darksonic300.mob_effect_vfx.util.ActivationTriggers;
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,189 +30,172 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientSideRenderEvent {
-    private static long ANIMATION_DURATION_MS;
+	private static long ANIMATION_DURATION_MS;
 
-    private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
-    public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
+	private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
+	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
-    public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
-    //private static final List<MobEffect> potions = Lists.newArrayList();
+	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
+	private static final HashSet<MobEffect> potions = Sets.newHashSet();
 
-        /* TODO: Filtering Effect Activation (potions, active, passive...)
-        @SubscribeEvent
-        public static void registerRenderers(LivingEntityUseItemEvent event) {
-            if(!(event.getItem().getItem() instanceof PotionItem)) return;
+	@SubscribeEvent
+	public static void checkTriggers(MobEffectEvent.Added event) {
+		var action = MEVConfig.CLIENT.action.get();
 
-            if(MEVConfig.CLIENT.action.get() == ActivationTriggers.PASSIVE)
-                potions.addAll(
-                        PotionUtils.getMobEffects(event.getItem())
-                        .stream().map(MobEffectInstance::getEffect).toList()
-            );
+		if (((event.getEffectSource() != event.getEntity() && event.getEffectSource() != null)
+				&& action == ActivationTriggers.SELF)
+				|| ((event.getEffectSource() == event.getEntity() || event.getEffectSource() == null)
+						&& action == ActivationTriggers.OTHER))
+			potions.add(event.getEffectInstance().getEffect());
 
-        }
+		System.out.println("Pozioni - " + potions);
+	}
 
-         */
+	@SubscribeEvent
+	public static void registerRenderers(TickEvent.ClientTickEvent event) {
+		if (event.phase != TickEvent.Phase.END)
+			return;
 
-    @SubscribeEvent
-    public static void registerRenderers(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.level == null || mc.player == null) {
+			activeEffectsTracker.clear();
+			activeVisuals.clear();
+			return;
+		}
+		LocalPlayer player = mc.player;
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.player == null) {
-            activeEffectsTracker.clear();
-            activeVisuals.clear();
-            return;
-        }
-        LocalPlayer player = mc.player;
+		Map<MobEffect, Integer> currentEffects = new HashMap<>();
 
+		for (MobEffectInstance instance : player.getActiveEffects()) {
+			MobEffect effect = instance.getEffect();
+			int currentDuration = instance.getDuration();
 
-        Map<MobEffect, Integer> currentEffects = new HashMap<>();
+			System.out.println("Pozioni con effetto - " + potions);
+			System.out.println("Effetto solo - " + effect);
 
-        for (MobEffectInstance instance : player.getActiveEffects()) {
-            MobEffect effect = instance.getEffect();
-            int currentDuration = instance.getDuration();
+			if (blocklist.contains(effect) || potions.contains(effect))
+				continue;
 
-            if(blocklist.contains(effect)
-                //|| potions.contains(effect)
-            ) continue;
+			if (!activeEffectsTracker.containsKey(effect)) {
+				triggerEffectVFX(effect);
+				triggerSoundAndParticles(mc, player, effect);
+			} else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
+				triggerEffectVFX(effect);
+				triggerSoundAndParticles(mc, player, effect);
+			}
 
-            if (!activeEffectsTracker.containsKey(effect)) {
-                triggerEffectVFX(effect);
-                triggerSoundAndParticles(mc, player, effect);
-            }
-            else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
-                triggerEffectVFX(effect);
-                triggerSoundAndParticles(mc, player, effect);
-            }
+			currentEffects.put(effect, currentDuration);
+		}
 
-            currentEffects.put(effect, currentDuration);
-        }
+		potions.clear();
 
-        //potions.clear();
+		activeEffectsTracker.clear();
+		activeEffectsTracker.putAll(currentEffects);
+	}
 
-        activeEffectsTracker.clear();
-        activeEffectsTracker.putAll(currentEffects);
-    }
+	@SubscribeEvent
+	public static void onRenderLevelStage(RenderLevelStageEvent event) {
+		ANIMATION_DURATION_MS = MEVConfig.CLIENT.duration.get();
 
+		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
+			return;
 
-    @SubscribeEvent
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        ANIMATION_DURATION_MS = MEVConfig.CLIENT.duration.get();
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null || activeVisuals.isEmpty())
+			return;
 
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+		PoseStack poseStack = event.getPoseStack();
+		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+		Vec3 cameraPos = event.getCamera().getPosition();
+		long currentTime = Util.getMillis();
+		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
 
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || activeVisuals.isEmpty()) return;
+		poseStack.pushPose();
 
-        PoseStack poseStack = event.getPoseStack();
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+		var copy = List.copyOf(activeVisuals);
+		for (MobEffectsVFX.ActiveEffectVisual visual : copy)
+			animationLoop(event, renderer, bufferSource, visual, currentTime, poseStack, mc.player, cameraPos);
+		bufferSource.endBatch();
 
-        Vec3 cameraPos = event.getCamera().getPosition();
-        long currentTime = Util.getMillis();
+		poseStack.popPose();
+	}
 
-        IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
+	/**
+	 * Handles animation logic for the vfx, the model definition is found in
+	 * CuboidModel.java
+	 */
+	private static void animationLoop(RenderLevelStageEvent event, IEffectRenderer renderer,
+			MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual, long currentTime,
+			PoseStack poseStack, Player player, Vec3 camera) {
+		MobEffectCategory effectCategory = visual.effect().getCategory();
+		long elapsedTime = currentTime - visual.startTime();
+		// Calculate animation progress (0.0 to 1.0)
+		float progress = (float) elapsedTime / ANIMATION_DURATION_MS;
 
-        poseStack.pushPose();
+		if (progress >= 1.0F) {
+			activeVisuals.remove(visual);
+			return;
+		}
 
-        var copy = List.copyOf(activeVisuals);
-        for (MobEffectsVFX.ActiveEffectVisual visual : copy) {
-            animationLoop(event, renderer, bufferSource, visual, currentTime, poseStack, mc.player, cameraPos);
-        }
+		poseStack.pushPose();
+		renderer.startRendering(bufferSource, event, poseStack, player, camera, progress, effectCategory,
+				visual.color());
+		poseStack.popPose();
+	}
 
-        bufferSource.endBatch();
-        poseStack.popPose();
-    }
+	private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
+		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
+				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
-    /**
-     * Handles animation logic for the vfx, the model definition is found in CuboidModel.java
-     */
-    private static void animationLoop(RenderLevelStageEvent event, IEffectRenderer renderer, MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual, long currentTime, PoseStack poseStack, Player player, Vec3 camera) {
-            MobEffectCategory effectCategory = visual.effect().getCategory();
-            long elapsedTime = currentTime - visual.startTime();
-            // Calculate animation progress (0.0 to 1.0)
-            float progress = (float) elapsedTime / ANIMATION_DURATION_MS;
+		mc.level.playLocalSound(player.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+				SoundSource.PLAYERS, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
+		spawnParticles(effect, player, getEffectColor(effect));
+	}
 
-            if (progress >= 1.0F) {
-                activeVisuals.remove(visual);
-                return;
-            }
+	private static void spawnParticles(MobEffect effect, LocalPlayer player, MEVColor color) {
+		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
+			return;
 
-            poseStack.pushPose();
-            renderer.startRendering(bufferSource, event, poseStack, player, camera, progress, effectCategory, visual.color());
-            poseStack.popPose();
-    }
+		var particle = effect.isBeneficial()
+				? MEVParticles.RISING_PARTICLES.get()
+				: MEVParticles.LOWERING_PARTICLES.get();
+		var random = player.level().random;
+		for (int i = 0; i < 3; i++) {
+			player.level().addParticle(particle, player.getX() + randomRange(random, -0.8f, 0f),
+					player.getY() + 1 + randomRange(random, 0f, 0.6f), player.getZ() + randomRange(random, 0f, 0.8f),
+					color.r(), color.g(), color.b());
+		}
+		for (int i = 0; i < 3; i++) {
+			player.level().addParticle(particle, player.getX() + randomRange(random, 0f, 0.8f),
+					player.getY() + 1 + randomRange(random, -0.6f, 0f), player.getZ() + randomRange(random, -0.8f, 0f),
+					color.r(), color.g(), color.b());
+		}
+	}
 
+	private static void triggerEffectVFX(MobEffect effect) {
+		MEVColor color = getEffectColor(effect);
+		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(effect, Util.getMillis(), color));
+	}
 
-    private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
-        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(
-                    ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get())
-            );
+	private static MEVColor getEffectColor(MobEffect effect) {
+		int color = effect.getColor();
+		float r = ((color >> 16) & 0xFF) / 255.0F;
+		float g = ((color >> 8) & 0xFF) / 255.0F;
+		float b = (color & 0xFF) / 255.0F;
 
-        mc.level.playLocalSound(
-                player.blockPosition(),
-                sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-                SoundSource.PLAYERS,
-                (float) MEVConfig.CLIENT.volume.get() / 100,
-                1,
-                true
-        );
-        spawnParticles(effect, player, getEffectColor(effect));
-    }
+		float a = MEVConfig.CLIENT.opacity.get().floatValue();
 
-    private static void spawnParticles(MobEffect effect, LocalPlayer player, MEVColor color) {
-        if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING)) return;
+		return new MEVColor(r, g, b, a);
+	}
 
-        var particle = effect.isBeneficial() ? MEVParticles.RISING_PARTICLES.get() : MEVParticles.LOWERING_PARTICLES.get();
-        var random = player.level().random;
-        for (int i = 0; i < 3; i++) {
-            player.level().addParticle(
-                    particle,
-                    player.getX() + randomRange(random, -0.8f, 0f),
-                    player.getY() + 1 + randomRange(random, 0f, 0.6f),
-                    player.getZ() + randomRange(random, 0f, 0.8f),
-                    color.r(), color.g(), color.b()
-            );
-        }
-        for (int i = 0; i < 3; i++) {
-            player.level().addParticle(
-                    particle,
-                    player.getX() + randomRange(random, 0f, 0.8f),
-                    player.getY() + 1 + randomRange(random, -0.6f, 0f),
-                    player.getZ() + randomRange(random, -0.8f, 0f),
-                    color.r(), color.g(), color.b()
-            );
-        }
-    }
-
-        private static void triggerEffectVFX(MobEffect effect) {
-            MEVColor color = getEffectColor(effect);
-            activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(effect, Util.getMillis(), color));
-        }
-
-        private static MEVColor getEffectColor(MobEffect effect) {
-            int color = effect.getColor();
-            float r = ((color >> 16) & 0xFF) / 255.0F;
-            float g = ((color >> 8) & 0xFF) / 255.0F;
-            float b = (color & 0xFF) / 255.0F;
-
-            float a = MEVConfig.CLIENT.opacity.get().floatValue();
-
-            return new MEVColor(r, g, b, a);
-        }
-
-        private static float randomRange(RandomSource random, float min, float max) {
-            return min + (max - min) * random.nextFloat();
-        }
+	private static float randomRange(RandomSource random, float min, float max) {
+		return min + (max - min) * random.nextFloat();
+	}
 }

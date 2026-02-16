@@ -12,17 +12,16 @@ import net.minecraftforge.registries.RegistryObject;
 
 @OnlyIn(Dist.CLIENT)
 public class MEVParticles {
-    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES =
-            DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, MobEffectsVFX.MODID);
+	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister
+			.create(ForgeRegistries.PARTICLE_TYPES, MobEffectsVFX.MODID);
 
-    public static final RegistryObject<SimpleParticleType> RISING_PARTICLES =
-            PARTICLE_TYPES.register("rising_particles", () -> new SimpleParticleType(true));
+	public static final RegistryObject<SimpleParticleType> RISING_PARTICLES = PARTICLE_TYPES
+			.register("rising_particles", () -> new SimpleParticleType(true));
 
-    public static final RegistryObject<SimpleParticleType> LOWERING_PARTICLES =
-            PARTICLE_TYPES.register("lowering_particles", () -> new SimpleParticleType(true));
+	public static final RegistryObject<SimpleParticleType> LOWERING_PARTICLES = PARTICLE_TYPES
+			.register("lowering_particles", () -> new SimpleParticleType(true));
 
-
-    public static void register(IEventBus eventBus) {
-        PARTICLE_TYPES.register(eventBus);
-    }
+	public static void register(IEventBus eventBus) {
+		PARTICLE_TYPES.register(eventBus);
+	}
 }

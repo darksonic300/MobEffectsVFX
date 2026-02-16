@@ -9,5 +9,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 public interface IEffectRenderer {
-    void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event, PoseStack poseStack, Player player, Vec3 camera, float progress, MobEffectCategory effectCategory, MEVColor color);
+	void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event, PoseStack poseStack,
+			Player player, Vec3 camera, float progress, MobEffectCategory effectCategory, MEVColor color);
 }

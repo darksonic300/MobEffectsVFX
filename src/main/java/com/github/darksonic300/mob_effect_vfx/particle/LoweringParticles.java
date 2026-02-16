@@ -10,25 +10,25 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LoweringParticles extends VisualParticles {
-    protected LoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z) {
-        super(sprite, level, x, y, z);
-        this.gravity = 0.5f;
-    }
+	protected LoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z) {
+		super(sprite, level, x, y, z);
+		this.gravity = 0.5f;
+	}
 
-    @OnlyIn(Dist.CLIENT)
-    public static class Provider implements ParticleProvider<SimpleParticleType> {
-        SpriteSet sprite;
+	@OnlyIn(Dist.CLIENT)
+	public static class Provider implements ParticleProvider<SimpleParticleType> {
+		SpriteSet sprite;
 
-        public Provider(SpriteSet sprite) {
-            this.sprite = sprite;
-        }
+		public Provider(SpriteSet sprite) {
+			this.sprite = sprite;
+		}
 
-        public Particle createParticle(SimpleParticleType particleType, ClientLevel level,
-                                       double x, double y, double z, double r, double g, double b) {
-            var particle = new LoweringParticles(this.sprite, level, x, y, z);
-            particle.setColor((float) r, (float) g, (float) b);
-            particle.setSize(5, 5);
-            return particle;
-        }
-    }
+		public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z,
+				double r, double g, double b) {
+			var particle = new LoweringParticles(this.sprite, level, x, y, z);
+			particle.setColor((float) r, (float) g, (float) b);
+			particle.setSize(5, 5);
+			return particle;
+		}
+	}
 }
