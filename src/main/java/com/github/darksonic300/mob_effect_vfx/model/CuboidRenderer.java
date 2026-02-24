@@ -29,17 +29,13 @@ public abstract class CuboidRenderer implements IEffectRenderer {
 		float la = color.a() - 0.8f;
 		la = Mth.clamp(0, la, 1.0f);
 
-		float r_t = Math.min(1.0F, color.r() + LIGHTEN_FACTOR);
-		float g_t = Math.min(1.0F, color.g() + LIGHTEN_FACTOR);
-		float b_t = Math.min(1.0F, color.b() + LIGHTEN_FACTOR);
+		MEVColor transparency = new MEVColor(Math.min(1.0F, color.r() + LIGHTEN_FACTOR),
+				Math.min(1.0F, color.g() + LIGHTEN_FACTOR), Math.min(1.0F, color.b() + LIGHTEN_FACTOR), la);
 
-		MEVColor transparency = new MEVColor(r_t, g_t, b_t, la);
-
-		if (category != MobEffectCategory.HARMFUL) {
+		if (category != MobEffectCategory.HARMFUL)
 			drawCuboid(buffer, color, transparency, matrix);
-		} else {
+		else
 			drawCuboid(buffer, transparency, color, matrix);
-		}
 	}
 
 	abstract void drawCuboid(VertexConsumer builder, MEVColor opaque, MEVColor transparency, Matrix4f matrix);

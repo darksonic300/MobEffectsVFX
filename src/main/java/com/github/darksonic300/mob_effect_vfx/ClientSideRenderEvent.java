@@ -54,8 +54,6 @@ public class ClientSideRenderEvent {
 				|| ((event.getEffectSource() == event.getEntity() || event.getEffectSource() == null)
 						&& action == ActivationTriggers.OTHER))
 			potions.add(event.getEffectInstance().getEffect());
-
-		System.out.println("Pozioni - " + potions);
 	}
 
 	@SubscribeEvent
@@ -76,9 +74,6 @@ public class ClientSideRenderEvent {
 		for (MobEffectInstance instance : player.getActiveEffects()) {
 			MobEffect effect = instance.getEffect();
 			int currentDuration = instance.getDuration();
-
-			System.out.println("Pozioni con effetto - " + potions);
-			System.out.println("Effetto solo - " + effect);
 
 			if (blocklist.contains(effect) || potions.contains(effect))
 				continue;
