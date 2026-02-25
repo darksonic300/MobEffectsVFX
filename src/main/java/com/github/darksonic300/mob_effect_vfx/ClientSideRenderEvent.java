@@ -37,7 +37,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientSideRenderEvent {
-    private static final float PARTICLE_RANGE = 0.6F;
+	private static final float PARTICLE_RANGE = 0.6F;
 
 	private static long animationDurationMs;
 	private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
@@ -166,13 +166,13 @@ public class ClientSideRenderEvent {
 		var random = player.level().random;
 		for (int i = 0; i < 3; i++) {
 			player.level().addParticle(particle, player.getX() + randomRange(random, -PARTICLE_RANGE, 0f),
-					player.getY() + 1 + randomRange(random, 0f, PARTICLE_RANGE), player.getZ() + randomRange(random, 0f, PARTICLE_RANGE),
-					color.r(), color.g(), color.b());
+					player.getY() + 1 + randomRange(random, 0f, PARTICLE_RANGE),
+					player.getZ() + randomRange(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
 			player.level().addParticle(particle, player.getX() + randomRange(random, 0f, PARTICLE_RANGE),
-					player.getY() + 1 + randomRange(random, -PARTICLE_RANGE, 0f), player.getZ() + randomRange(random, -PARTICLE_RANGE, 0f),
-					color.r(), color.g(), color.b());
+					player.getY() + 1 + randomRange(random, -PARTICLE_RANGE, 0f),
+					player.getZ() + randomRange(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
 	}
 
