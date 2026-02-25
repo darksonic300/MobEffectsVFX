@@ -65,7 +65,7 @@ public class MEVConfig {
 
 			builder.push("Sound");
 			volume = builder.comment("The volume value for the effect sounds.")
-					.translation("config." + MobEffectsVFX.MODID + ".volume").defineInRange("Volume", 100, 0, 100);
+					.translation("config." + MobEffectsVFX.MODID + ".volume").defineInRange("Volume", 70, 0, 100);
 			builder.pop();
 		}
 	}
