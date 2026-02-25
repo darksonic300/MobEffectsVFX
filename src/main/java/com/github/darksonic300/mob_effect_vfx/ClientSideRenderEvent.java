@@ -37,8 +37,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientSideRenderEvent {
-	private static long ANIMATION_DURATION_MS;
+    private static final float PARTICLE_RANGE = 0.6F;
 
+	private static long animationDurationMs;
 	private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
@@ -97,7 +98,7 @@ public class ClientSideRenderEvent {
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
-		ANIMATION_DURATION_MS = MEVConfig.CLIENT.duration.get();
+		animationDurationMs = MEVConfig.CLIENT.duration.get();
 
 		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
 			return;
@@ -132,7 +133,7 @@ public class ClientSideRenderEvent {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		long elapsedTime = currentTime - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
-		float progress = (float) elapsedTime / ANIMATION_DURATION_MS;
+		float progress = (float) elapsedTime / animationDurationMs;
 
 		if (progress >= 1.0F) {
 			activeVisuals.remove(visual);
@@ -161,15 +162,16 @@ public class ClientSideRenderEvent {
 		var particle = effect.isBeneficial()
 				? MEVParticles.RISING_PARTICLES.get()
 				: MEVParticles.LOWERING_PARTICLES.get();
+
 		var random = player.level().random;
 		for (int i = 0; i < 3; i++) {
-			player.level().addParticle(particle, player.getX() + randomRange(random, -0.8f, 0f),
-					player.getY() + 1 + randomRange(random, 0f, 0.6f), player.getZ() + randomRange(random, 0f, 0.8f),
+			player.level().addParticle(particle, player.getX() + randomRange(random, -PARTICLE_RANGE, 0f),
+					player.getY() + 1 + randomRange(random, 0f, PARTICLE_RANGE), player.getZ() + randomRange(random, 0f, PARTICLE_RANGE),
 					color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-			player.level().addParticle(particle, player.getX() + randomRange(random, 0f, 0.8f),
-					player.getY() + 1 + randomRange(random, -0.6f, 0f), player.getZ() + randomRange(random, -0.8f, 0f),
+			player.level().addParticle(particle, player.getX() + randomRange(random, 0f, PARTICLE_RANGE),
+					player.getY() + 1 + randomRange(random, -PARTICLE_RANGE, 0f), player.getZ() + randomRange(random, -PARTICLE_RANGE, 0f),
 					color.r(), color.g(), color.b());
 		}
 	}
