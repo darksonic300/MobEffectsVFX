@@ -11,8 +11,8 @@ A Client-side Minecraft mod that adds simple 3D VFX on effect application!
 [![Modloader: NeoForge](https://img.shields.io/badge/Mod%20Loader-neoforge-CC974D?style=for-the-badge)](https://neoforged.net/)
 [![CurseForge Downloads](http://cf.way2muchnoise.eu/1382352.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/mobeffectsvfx)
 [![CurseForge Version](http://cf.way2muchnoise.eu/versions/1382352.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/mobeffectsvfx)  
-[![Modrinth Downloads](https://img.shields.io/modrinth/dt/gcHIih5B?color=00AF5C&logo=modrinth&label=Downloads)](https://modrinth.com/mod/mobeffectsvfx)
-[![Modrinth Version](https://img.shields.io/modrinth/game-versions/gcHIih5B?color=00AF5C&label=Latest&logo=modrinth&last=true)](https://modrinth.com/mod/mobeffectsvfx)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/gcHIih5B?color=00AF5C&logo=modrinth&label=Downloads&style=for-the-badge)](https://modrinth.com/mod/mobeffectsvfx)
+[![Modrinth Version](https://img.shields.io/modrinth/game-versions/gcHIih5B?color=00AF5C&label=Latest&logo=modrinth&last=true&style=for-the-badge)](https://modrinth.com/mod/mobeffectsvfx)
 
 <!-- [![Modrinth Downloads](https://img.shields.io/modrinth/dt/gcHIih5B?color=00AF5C&logo=modrinth&label=Downloads)](https://modrinth.com/mod/deep-aether)
 [![Modrinth Version](https://img.shields.io/modrinth/game-versions/gcHIih5B?color=00AF5C&label=Latest&logo=modrinth&last=true)](https://modrinth.com/mod/deep-aether) -->
