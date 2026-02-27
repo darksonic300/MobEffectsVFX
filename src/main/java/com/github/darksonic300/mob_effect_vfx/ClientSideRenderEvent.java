@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -25,11 +24,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -47,53 +46,33 @@ public class ClientSideRenderEvent {
 	private static final HashSet<MobEffect> potions = Sets.newHashSet();
 
 	@SubscribeEvent
-	public static void checkTriggers(MobEffectEvent.Added event) {
+	public static void onEffectGain(MobEffectEvent.Added event) {
 		var action = MEVConfig.CLIENT.action.get();
 
-		if (((event.getEffectSource() != event.getEntity() && event.getEffectSource() != null)
+		if (((event.getEffectSource() != null && event.getEffectSource() != event.getEntity())
 				&& action == ActivationTriggers.SELF)
-				|| ((event.getEffectSource() == event.getEntity() || event.getEffectSource() == null)
+				|| ((event.getEffectSource() == null || event.getEffectSource() == event.getEntity())
 						&& action == ActivationTriggers.OTHER))
 			potions.add(event.getEffectInstance().getEffect());
-	}
 
-	@SubscribeEvent
-	public static void registerRenderers(TickEvent.ClientTickEvent event) {
-		if (event.phase != TickEvent.Phase.END)
-			return;
+        activeVisuals.clear();
 
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.level == null || mc.player == null) {
-			activeEffectsTracker.clear();
-			activeVisuals.clear();
-			return;
-		}
-		LocalPlayer player = mc.player;
+        var effect = event.getEffectInstance().getEffect();
 
-		Map<MobEffect, Integer> currentEffects = new HashMap<>();
+        if (blocklist.contains(effect) || potions.contains(effect)) return;
 
-		for (MobEffectInstance instance : player.getActiveEffects()) {
-			MobEffect effect = instance.getEffect();
-			int currentDuration = instance.getDuration();
+        var oldDuration = event.getOldEffectInstance() == null ? 0 : event.getOldEffectInstance().getDuration();
+        var currentEffects = event.getEntity().getActiveEffects().stream().map(MobEffectInstance::getEffect).toList();
 
-			if (blocklist.contains(effect) || potions.contains(effect))
-				continue;
+        if (!currentEffects.contains(effect)) {
+            triggerEffectVFX(effect);
+            triggerSoundAndParticles(Minecraft.getInstance(), event.getEntity(), effect);
+        } else if (event.getEffectInstance().getDuration() > (oldDuration + MEVConfig.CLIENT.refresh_cooldown.get())) {
+            triggerEffectVFX(effect);
+            triggerSoundAndParticles(Minecraft.getInstance(), event.getEntity(), effect);
+        }
 
-			if (!activeEffectsTracker.containsKey(effect)) {
-				triggerEffectVFX(effect);
-				triggerSoundAndParticles(mc, player, effect);
-			} else if (currentDuration > (activeEffectsTracker.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get())) {
-				triggerEffectVFX(effect);
-				triggerSoundAndParticles(mc, player, effect);
-			}
-
-			currentEffects.put(effect, currentDuration);
-		}
-
-		potions.clear();
-
-		activeEffectsTracker.clear();
-		activeEffectsTracker.putAll(currentEffects);
+        potions.clear();
 	}
 
 	@SubscribeEvent
@@ -146,16 +125,16 @@ public class ClientSideRenderEvent {
 		poseStack.popPose();
 	}
 
-	private static void triggerSoundAndParticles(Minecraft mc, LocalPlayer player, MobEffect effect) {
+	private static void triggerSoundAndParticles(Minecraft mc, LivingEntity entity, MobEffect effect) {
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
-		mc.level.playLocalSound(player.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+		mc.level.playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
 				SoundSource.PLAYERS, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
-		spawnParticles(effect, player, getEffectColor(effect));
+		spawnParticles(effect, entity, getEffectColor(effect));
 	}
 
-	private static void spawnParticles(MobEffect effect, LocalPlayer player, MEVColor color) {
+	private static void spawnParticles(MobEffect effect, LivingEntity entity, MEVColor color) {
 		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
 			return;
 
@@ -163,16 +142,16 @@ public class ClientSideRenderEvent {
 				? MEVParticles.RISING_PARTICLES.get()
 				: MEVParticles.LOWERING_PARTICLES.get();
 
-		var random = player.level().random;
+		var random = entity.level().random;
 		for (int i = 0; i < 3; i++) {
-			player.level().addParticle(particle, player.getX() + randomRange(random, -PARTICLE_RANGE, 0f),
-					player.getY() + 1 + randomRange(random, 0f, PARTICLE_RANGE),
-					player.getZ() + randomRange(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+			entity.level().addParticle(particle, entity.getX() + randomRange(random, -PARTICLE_RANGE, 0f),
+					entity.getY() + 1 + randomRange(random, 0f, PARTICLE_RANGE),
+					entity.getZ() + randomRange(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-			player.level().addParticle(particle, player.getX() + randomRange(random, 0f, PARTICLE_RANGE),
-					player.getY() + 1 + randomRange(random, -PARTICLE_RANGE, 0f),
-					player.getZ() + randomRange(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+			entity.level().addParticle(particle, entity.getX() + randomRange(random, 0f, PARTICLE_RANGE),
+					entity.getY() + 1 + randomRange(random, -PARTICLE_RANGE, 0f),
+					entity.getZ() + randomRange(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
 	}
 

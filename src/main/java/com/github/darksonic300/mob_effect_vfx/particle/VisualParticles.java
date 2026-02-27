@@ -57,6 +57,7 @@ public abstract class VisualParticles extends TextureSheetParticle {
 				Mth.lerp(mc.getPartialTick(), this.y, mc.player.getY() + offsety),
 				Mth.lerp(mc.getPartialTick(), this.z, mc.player.getZ() + offsetz));
 
+        this.yd *= this.friction;
 	}
 
 	@Override
