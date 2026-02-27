@@ -24,8 +24,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 
-	public record ActiveEffectVisual(
-            LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
+	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
 	}
 
 	public MobEffectsVFX() {

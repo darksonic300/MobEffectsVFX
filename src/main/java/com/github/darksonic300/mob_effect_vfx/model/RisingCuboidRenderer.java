@@ -8,7 +8,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
@@ -16,33 +15,27 @@ import org.joml.Matrix4f;
 public class RisingCuboidRenderer extends CuboidRenderer {
 
 	@Override
-	public void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-                               PoseStack poseStack, LivingEntity source, Vec3 camera, float progress, MobEffectCategory effectCategory,
-                               MEVColor color) {
+	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
+                           LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+		PoseStack poseStack = event.getPoseStack();
+		Vec3 camera = event.getCamera().getPosition();
+
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
 		// Calculate animated properties
 		float baseSize = source.getDimensions(Pose.STANDING).width + 0.7F;
-		float yOffset = progress * 1.5F;
-
-		double visualX = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0); // Center the
-																										// cuboid
-		double visualZ = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0);
+        float yOffset = progress * ((source.getDimensions(Pose.STANDING).height / 2) + 0.5F);
 
 		// Apply camera offset transformation
-		double x = visualX - camera.x;
-
+		double x = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
 		double y = Mth.lerp(event.getPartialTick(), source.yo, source.getY()) - camera.y;
-
 		y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
-
-		double z = visualZ - camera.z;
+		double z = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0) - camera.z;
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, baseSize, baseSize);
-
-		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.RISING), color, effectCategory);
+		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
 	}
 
 	@Override

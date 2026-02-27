@@ -16,16 +16,20 @@ import org.joml.Matrix4f;
 public class FlatCuboidRenderer extends CuboidRenderer {
 
 	@Override
-	public void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-                               PoseStack poseStack, LivingEntity source, Vec3 camera, float progress, MobEffectCategory effectCategory,
-                               MEVColor color) {
+	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
+                           LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+		PoseStack poseStack = event.getPoseStack();
+		Vec3 camera = event.getCamera().getPosition();
+
 		float a = calculateAlpha(color.a(), progress);
 		a += 0.1f;
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
 		// Calculate animated properties
 		float scaleOffset = progress * 1.5F;
-		float baseSize = effectCategory == MobEffectCategory.HARMFUL ? ((source.getDimensions(Pose.STANDING).width + 0.7F) * 1.5F) - scaleOffset : (source.getScale() + 0.3F) * scaleOffset;
+		float baseSize = effectCategory == MobEffectCategory.HARMFUL
+				? ((source.getDimensions(Pose.STANDING).width + 0.7F) * 1.5F) - scaleOffset
+				: (source.getScale() + 0.3F) * scaleOffset;
 
 		double visualX = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0); // Center the
 																										// cuboid on the
