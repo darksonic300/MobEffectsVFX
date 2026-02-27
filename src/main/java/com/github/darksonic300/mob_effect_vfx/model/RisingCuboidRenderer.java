@@ -16,7 +16,7 @@ public class RisingCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-                           LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
 		PoseStack poseStack = event.getPoseStack();
 		Vec3 camera = event.getCamera().getPosition();
 
@@ -25,7 +25,7 @@ public class RisingCuboidRenderer extends CuboidRenderer {
 
 		// Calculate animated properties
 		float baseSize = source.getDimensions(Pose.STANDING).width + 0.7F;
-        float yOffset = progress * ((source.getDimensions(Pose.STANDING).height / 2) + 0.5F);
+		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height / 2) + 0.5F);
 
 		// Apply camera offset transformation
 		double x = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0) - camera.x;

@@ -17,7 +17,7 @@ public class FlatCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-                           LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
 		PoseStack poseStack = event.getPoseStack();
 		Vec3 camera = event.getCamera().getPosition();
 

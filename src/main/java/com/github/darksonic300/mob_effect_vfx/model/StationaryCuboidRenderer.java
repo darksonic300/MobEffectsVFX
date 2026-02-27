@@ -33,9 +33,9 @@ public class StationaryCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-                           LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
-        PoseStack poseStack = event.getPoseStack();
-        Vec3 camera = event.getCamera().getPosition();
+			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+		PoseStack poseStack = event.getPoseStack();
+		Vec3 camera = event.getCamera().getPosition();
 
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);

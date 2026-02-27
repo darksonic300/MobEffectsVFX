@@ -8,5 +8,5 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 
 public interface IEffectRenderer {
 	void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event, LivingEntity source,
-                    float progress, MobEffectCategory effectCategory, MEVColor color);
+			float progress, MobEffectCategory effectCategory, MEVColor color);
 }

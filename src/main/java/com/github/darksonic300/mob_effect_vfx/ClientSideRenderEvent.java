@@ -56,7 +56,8 @@ public class ClientSideRenderEvent {
 				potions.add(event.getEffectInstance().getEffect());
 		}
 
-        activeVisuals.removeIf(v -> v.source() == event.getEntity() && v.effect() == event.getEffectInstance().getEffect());
+		activeVisuals
+				.removeIf(v -> v.source() == event.getEntity() && v.effect() == event.getEffectInstance().getEffect());
 
 		var effect = event.getEffectInstance().getEffect();
 
@@ -68,10 +69,10 @@ public class ClientSideRenderEvent {
 
 		if (!currentEffects.contains(effect)) {
 			triggerEffectVFX(event.getEntity(), effect);
-            triggerSoundAndParticles(event.getEntity(), effect);
+			triggerSoundAndParticles(event.getEntity(), effect);
 		} else if (event.getEffectInstance().getDuration() > (oldDuration + MEVConfig.CLIENT.refresh_cooldown.get())) {
 			triggerEffectVFX(event.getEntity(), effect);
-            triggerSoundAndParticles(event.getEntity(), effect);
+			triggerSoundAndParticles(event.getEntity(), effect);
 		}
 
 		potions.clear();
@@ -93,19 +94,19 @@ public class ClientSideRenderEvent {
 
 		var cp = List.copyOf(activeVisuals);
 		for (MobEffectsVFX.ActiveEffectVisual visual : cp) {
-            poseStack.pushPose();
-            animationLoop(event, bufferSource, visual);
-            poseStack.popPose();
+			poseStack.pushPose();
+			animationLoop(event, bufferSource, visual);
+			poseStack.popPose();
 		}
-        bufferSource.endBatch();
+		bufferSource.endBatch();
 	}
 
 	/**
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	private static void animationLoop(RenderLevelStageEvent event,
-			MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual) {
+	private static void animationLoop(RenderLevelStageEvent event, MultiBufferSource.BufferSource bufferSource,
+			MobEffectsVFX.ActiveEffectVisual visual) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
@@ -116,21 +117,22 @@ public class ClientSideRenderEvent {
 			return;
 		}
 
-        IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
+		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
 		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
 	}
 
 	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
 
-        if(Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide()) return;
-        var level = Minecraft.getInstance().level;
+		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
+			return;
+		var level = Minecraft.getInstance().level;
 
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
-        level.playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+		level.playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
 				SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
 
-        spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
+		spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
 
 	private static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
@@ -143,12 +145,12 @@ public class ClientSideRenderEvent {
 
 		var random = level.getRandom();
 		for (int i = 0; i < 3; i++) {
-            level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+			level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
 					entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
 					entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-            level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+			level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
 					entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
 					entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
