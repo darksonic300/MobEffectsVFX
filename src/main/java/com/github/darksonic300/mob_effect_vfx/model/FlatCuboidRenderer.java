@@ -7,7 +7,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
@@ -16,24 +17,24 @@ public class FlatCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-			PoseStack poseStack, Player player, Vec3 camera, float progress, MobEffectCategory effectCategory,
-			MEVColor color) {
+                               PoseStack poseStack, LivingEntity source, Vec3 camera, float progress, MobEffectCategory effectCategory,
+                               MEVColor color) {
 		float a = calculateAlpha(color.a(), progress);
 		a += 0.1f;
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
 		// Calculate animated properties
 		float scaleOffset = progress * 1.5F;
-		float baseSize = effectCategory == MobEffectCategory.HARMFUL ? (1.3F * 1.5F) - scaleOffset : 1.3F * scaleOffset;
+		float baseSize = effectCategory == MobEffectCategory.HARMFUL ? ((source.getDimensions(Pose.STANDING).width + 0.7F) * 1.5F) - scaleOffset : (source.getScale() + 0.3F) * scaleOffset;
 
-		double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the
+		double visualX = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0); // Center the
 																										// cuboid on the
 																										// player
-		double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
+		double visualZ = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0);
 
 		// Apply camera offset transformation
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.y + 0.01D;
+		double y = Mth.lerp(event.getPartialTick(), source.yo, source.getY()) - camera.y + 0.01D;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);

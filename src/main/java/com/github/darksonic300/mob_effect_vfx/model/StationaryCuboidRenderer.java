@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -31,23 +33,19 @@ public class StationaryCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void startRendering(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-			PoseStack poseStack, Player player, Vec3 camera, float progress, MobEffectCategory effectCategory,
-			MEVColor color) {
+                               PoseStack poseStack, LivingEntity source, Vec3 camera, float progress, MobEffectCategory effectCategory,
+                               MEVColor color) {
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
-		// Calculate animated properties
-		float baseSize = 1.3F;
+		float baseSize = source.getDimensions(Pose.STANDING).width + 0.7F;
 		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-		double visualX = Mth.lerp(event.getPartialTick(), player.xo, player.getX()) - (baseSize / 2.0); // Center the
-																										// cuboid on the
-																										// player
-		double visualZ = Mth.lerp(event.getPartialTick(), player.zo, player.getZ()) - (baseSize / 2.0);
+		double visualX = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0);
+		double visualZ = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0);
 
-		// Apply camera offset transformation
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick(), player.yo, player.getY()) - camera.y;
+		double y = Mth.lerp(event.getPartialTick(), source.yo, source.getY()) - camera.y;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);

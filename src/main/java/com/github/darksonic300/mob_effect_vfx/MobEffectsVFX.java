@@ -7,6 +7,7 @@ import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +24,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 
-	public record ActiveEffectVisual(MobEffect effect, long startTime, MEVColor color) {
+	public record ActiveEffectVisual(
+            LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
 	}
 
 	public MobEffectsVFX() {

@@ -39,7 +39,6 @@ public class ClientSideRenderEvent {
 	private static final float PARTICLE_RANGE = 0.6F;
 
 	private static long animationDurationMs;
-	private static final Map<MobEffect, Integer> activeEffectsTracker = new HashMap<>();
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
@@ -49,11 +48,13 @@ public class ClientSideRenderEvent {
 	public static void onEffectGain(MobEffectEvent.Added event) {
 		var action = MEVConfig.CLIENT.action.get();
 
-		if (((event.getEffectSource() != null && event.getEffectSource() != event.getEntity())
-				&& action == ActivationTriggers.SELF)
-				|| ((event.getEffectSource() == null || event.getEffectSource() == event.getEntity())
-						&& action == ActivationTriggers.OTHER))
-			potions.add(event.getEffectInstance().getEffect());
+        if(event.getEntity() instanceof Player) {
+            if (((event.getEffectSource() != null && event.getEffectSource() != event.getEntity())
+                    && action == ActivationTriggers.SELF)
+                    || ((event.getEffectSource() == null || event.getEffectSource() == event.getEntity())
+                    && action == ActivationTriggers.OTHER))
+                potions.add(event.getEffectInstance().getEffect());
+        }
 
         activeVisuals.clear();
 
@@ -65,10 +66,10 @@ public class ClientSideRenderEvent {
         var currentEffects = event.getEntity().getActiveEffects().stream().map(MobEffectInstance::getEffect).toList();
 
         if (!currentEffects.contains(effect)) {
-            triggerEffectVFX(effect);
+            triggerEffectVFX(event.getEntity(), effect);
             triggerSoundAndParticles(Minecraft.getInstance(), event.getEntity(), effect);
         } else if (event.getEffectInstance().getDuration() > (oldDuration + MEVConfig.CLIENT.refresh_cooldown.get())) {
-            triggerEffectVFX(effect);
+            triggerEffectVFX(event.getEntity(), effect);
             triggerSoundAndParticles(Minecraft.getInstance(), event.getEntity(), effect);
         }
 
@@ -96,7 +97,7 @@ public class ClientSideRenderEvent {
 
 		var copy = List.copyOf(activeVisuals);
 		for (MobEffectsVFX.ActiveEffectVisual visual : copy)
-			animationLoop(event, renderer, bufferSource, visual, currentTime, poseStack, mc.player, cameraPos);
+			animationLoop(event, renderer, bufferSource, visual, currentTime, poseStack, cameraPos);
 		bufferSource.endBatch();
 
 		poseStack.popPose();
@@ -108,7 +109,7 @@ public class ClientSideRenderEvent {
 	 */
 	private static void animationLoop(RenderLevelStageEvent event, IEffectRenderer renderer,
 			MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual, long currentTime,
-			PoseStack poseStack, Player player, Vec3 camera) {
+			PoseStack poseStack, Vec3 camera) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		long elapsedTime = currentTime - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
@@ -120,7 +121,7 @@ public class ClientSideRenderEvent {
 		}
 
 		poseStack.pushPose();
-		renderer.startRendering(bufferSource, event, poseStack, player, camera, progress, effectCategory,
+		renderer.startRendering(bufferSource, event, poseStack, visual.source(), camera, progress, effectCategory,
 				visual.color());
 		poseStack.popPose();
 	}
@@ -155,9 +156,9 @@ public class ClientSideRenderEvent {
 		}
 	}
 
-	private static void triggerEffectVFX(MobEffect effect) {
+	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
 		MEVColor color = getEffectColor(effect);
-		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(effect, Util.getMillis(), color));
+		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis(), color));
 	}
 
 	private static MEVColor getEffectColor(MobEffect effect) {
