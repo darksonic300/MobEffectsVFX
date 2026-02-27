@@ -15,11 +15,13 @@ import java.util.List;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -66,10 +68,10 @@ public class ClientSideRenderEvent {
 
 		if (!currentEffects.contains(effect)) {
 			triggerEffectVFX(event.getEntity(), effect);
-			triggerSoundAndParticles(event.getEntity(), effect);
+            triggerSoundAndParticles(event.getEntity(), effect);
 		} else if (event.getEffectInstance().getDuration() > (oldDuration + MEVConfig.CLIENT.refresh_cooldown.get())) {
 			triggerEffectVFX(event.getEntity(), effect);
-			triggerSoundAndParticles(event.getEntity(), effect);
+            triggerSoundAndParticles(event.getEntity(), effect);
 		}
 
 		potions.clear();
@@ -119,18 +121,19 @@ public class ClientSideRenderEvent {
 	}
 
 	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
+
+        if(Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide()) return;
+        var level = Minecraft.getInstance().level;
+
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
-		if (entity.level() == null)
-			return;
+        level.playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+				SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
 
-		entity.level().playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-				SoundSource.PLAYERS, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
-
-		spawnParticles(effect, entity, MEVColor.getEffectColor(effect));
+        spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
 
-	private static void spawnParticles(MobEffect effect, LivingEntity entity, MEVColor color) {
+	private static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
 		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
 			return;
 
@@ -138,16 +141,16 @@ public class ClientSideRenderEvent {
 				? MEVParticles.RISING_PARTICLES.get()
 				: MEVParticles.LOWERING_PARTICLES.get();
 
-		var random = entity.level().random;
+		var random = level.getRandom();
 		for (int i = 0; i < 3; i++) {
-			entity.level().addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-					entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+            level.addParticle(particle, entity.getX() + fRand(random, -PARTICLE_RANGE, 0f),
+					entity.getY() + 1 + fRand(random, 0f, PARTICLE_RANGE),
+					entity.getZ() + fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-			entity.level().addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-					entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+            level.addParticle(particle, entity.getX() + fRand(random, 0f, PARTICLE_RANGE),
+					entity.getY() + 1 + fRand(random, -PARTICLE_RANGE, 0f),
+					entity.getZ() + fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
 	}
 
@@ -155,4 +158,9 @@ public class ClientSideRenderEvent {
 		MEVColor color = MEVColor.getEffectColor(effect);
 		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis(), color));
 	}
+
+    public static float fRand(RandomSource random, float min, float max) {
+        return min + (max - min) * random.nextFloat();
+        //return ThreadLocalRandom.current().nextFloat(min, max);
+    }
 }
