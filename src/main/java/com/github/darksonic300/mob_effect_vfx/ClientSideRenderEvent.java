@@ -56,7 +56,7 @@ public class ClientSideRenderEvent {
 				potions.add(event.getEffectInstance().getEffect());
 		}
 
-		activeVisuals.clear();
+        activeVisuals.removeIf(v -> v.source() == event.getEntity() && v.effect() == event.getEffectInstance().getEffect());
 
 		var effect = event.getEffectInstance().getEffect();
 
@@ -91,13 +91,13 @@ public class ClientSideRenderEvent {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-        poseStack.pushPose();
 		var cp = List.copyOf(activeVisuals);
 		for (MobEffectsVFX.ActiveEffectVisual visual : cp) {
-			animationLoop(event, bufferSource, visual);
-            bufferSource.endBatch();
+            poseStack.pushPose();
+            animationLoop(event, bufferSource, visual);
+            poseStack.popPose();
 		}
-        poseStack.popPose();
+        bufferSource.endBatch();
 	}
 
 	/**
@@ -143,14 +143,14 @@ public class ClientSideRenderEvent {
 
 		var random = level.getRandom();
 		for (int i = 0; i < 3; i++) {
-            level.addParticle(particle, entity.getX() + fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getY() + 1 + fRand(random, 0f, PARTICLE_RANGE),
-					entity.getZ() + fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+            level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+					entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+					entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-            level.addParticle(particle, entity.getX() + fRand(random, 0f, PARTICLE_RANGE),
-					entity.getY() + 1 + fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getZ() + fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+            level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+					entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+					entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
 	}
 
@@ -158,9 +158,4 @@ public class ClientSideRenderEvent {
 		MEVColor color = MEVColor.getEffectColor(effect);
 		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis(), color));
 	}
-
-    public static float fRand(RandomSource random, float min, float max) {
-        return min + (max - min) * random.nextFloat();
-        //return ThreadLocalRandom.current().nextFloat(min, max);
-    }
 }

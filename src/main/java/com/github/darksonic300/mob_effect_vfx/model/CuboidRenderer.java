@@ -27,7 +27,7 @@ public abstract class CuboidRenderer implements IEffectRenderer {
 		Matrix4f matrix = poseStack.last().pose();
 
 		float la = color.a() - 0.8f;
-		la = Mth.clamp(0, la, 1.0f);
+		la = Mth.clamp(la, 0, 1.0f);
 
 		MEVColor transparency = new MEVColor(Math.min(1.0F, color.r() + LIGHTEN_FACTOR),
 				Math.min(1.0F, color.g() + LIGHTEN_FACTOR), Math.min(1.0F, color.b() + LIGHTEN_FACTOR), la);
@@ -46,6 +46,6 @@ public abstract class CuboidRenderer implements IEffectRenderer {
 	}
 
 	static float calculateAlpha(float alpha, double progress) {
-		return (float) Mth.clamp(0, alpha * Math.exp(-2.5 * progress), 1);
+		return (float) Mth.clamp(alpha * Math.exp(-2.5 * progress), 0, 1);
 	}
 }
