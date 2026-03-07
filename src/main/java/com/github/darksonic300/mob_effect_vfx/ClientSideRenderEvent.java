@@ -10,8 +10,15 @@ import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -25,10 +32,14 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -40,43 +51,56 @@ public class ClientSideRenderEvent {
 
 	private static long animationDurationMs;
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
-
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
-	private static final HashSet<MobEffect> potions = Sets.newHashSet();
+    private static final Map<Entity, Set<MobEffectInstance>> effectCache = new HashMap<>();
 
-	@SubscribeEvent
-	public static void onEffectGain(MobEffectEvent.Added event) {
-		var action = MEVConfig.CLIENT.action.get();
+    @SubscribeEvent
+    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+        if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide()) return;
 
-		if (event.getEntity() instanceof Player) {
-			if (((event.getEffectSource() != null && event.getEffectSource() != event.getEntity())
-					&& action == ActivationTriggers.SELF)
-					|| ((event.getEffectSource() == null || event.getEffectSource() == event.getEntity())
-							&& action == ActivationTriggers.OTHER))
-				potions.add(event.getEffectInstance().getEffect());
-		}
+        LivingEntity entity = event.getEntity();
+        Map<Entity, Set<MobEffectInstance>> currentEffects = new HashMap<>();
+        Set<MobEffectInstance> oldEffects = effectCache.getOrDefault(entity, Collections.emptySet());
 
-		activeVisuals
-				.removeIf(v -> v.source() == event.getEntity() && v.effect() == event.getEffectInstance().getEffect());
+        for (MobEffectInstance entry : entity.getActiveEffects()) {
+            MobEffect effect = entry.getEffect();
+            int currentDuration = entry.getDuration();
+            MobEffect oldEffect = null;
+            int oldDuration = 0;
+            for (MobEffectInstance old : oldEffects) {
+                if (old.getEffect().equals(effect)) {
+                    oldEffect = old.getEffect();
+                    oldDuration = old.getDuration();
+                }
+            }
 
-		var effect = event.getEffectInstance().getEffect();
+            if (blocklist.contains(effect)) continue;
 
-		if (blocklist.contains(effect) || potions.contains(effect))
-			return;
 
-		var oldDuration = event.getOldEffectInstance() == null ? 0 : event.getOldEffectInstance().getDuration();
-		var currentEffects = event.getEntity().getActiveEffects().stream().map(MobEffectInstance::getEffect).toList();
+            boolean flag = false;
+            for(var hello : effectCache.getOrDefault(entity, Collections.emptySet())) {
+                if(effect == hello.getEffect()) flag = true;
+            }
 
-		if (!currentEffects.contains(effect)) {
-			triggerEffectVFX(event.getEntity(), effect);
-			triggerSoundAndParticles(event.getEntity(), effect);
-		} else if (event.getEffectInstance().getDuration() > (oldDuration + MEVConfig.CLIENT.refresh_cooldown.get())) {
-			triggerEffectVFX(event.getEntity(), effect);
-			triggerSoundAndParticles(event.getEntity(), effect);
-		}
+            if (effectCache.containsKey(entity) && !flag) {
+                triggerEffectVFX(entity, effect);
+                triggerSoundAndParticles(entity, effect);
+            } else if (currentDuration > oldDuration + MEVConfig.CLIENT.refresh_cooldown.get()) {
+                triggerEffectVFX(entity, effect);
+                triggerSoundAndParticles(entity, effect);
+            }
 
-		potions.clear();
-	}
+            currentEffects.put(entity, new HashSet<>(entity.getActiveEffects()));
+        }
+        effectCache.putAll(currentEffects);
+    }
+
+    @SubscribeEvent
+    public static void onEntityLeave(EntityLeaveLevelEvent event) {
+        if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
+            effectCache.remove(event.getEntity());
+        }
+    }
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -122,9 +146,6 @@ public class ClientSideRenderEvent {
 	}
 
 	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
-
-		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
-			return;
 		var level = Minecraft.getInstance().level;
 
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
