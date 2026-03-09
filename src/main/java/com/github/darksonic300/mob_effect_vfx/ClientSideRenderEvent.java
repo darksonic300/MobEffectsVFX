@@ -52,55 +52,46 @@ public class ClientSideRenderEvent {
 	private static long animationDurationMs;
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
-    private static final Map<Entity, Set<MobEffectInstance>> effectCache = new HashMap<>();
+	private static final Map<UUID, Map<MobEffect, Integer>> effectCache = new HashMap<>();
 
-    @SubscribeEvent
-    public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide()) return;
+	@SubscribeEvent
+	public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
+			return;
+		if (event.getEntity() == null || event.getEntity().getActiveEffects().isEmpty())
+			return;
 
-        LivingEntity entity = event.getEntity();
-        Map<Entity, Set<MobEffectInstance>> currentEffects = new HashMap<>();
-        Set<MobEffectInstance> oldEffects = effectCache.getOrDefault(entity, Collections.emptySet());
+		var level = Minecraft.getInstance().level;
+		var entity = event.getEntity();
+		var newMap = new HashMap<MobEffect, Integer>();
+		var map = effectCache.getOrDefault(entity.getUUID(), Collections.emptyMap());
 
-        for (MobEffectInstance entry : entity.getActiveEffects()) {
-            MobEffect effect = entry.getEffect();
-            int currentDuration = entry.getDuration();
-            MobEffect oldEffect = null;
-            int oldDuration = 0;
-            for (MobEffectInstance old : oldEffects) {
-                if (old.getEffect().equals(effect)) {
-                    oldEffect = old.getEffect();
-                    oldDuration = old.getDuration();
-                }
-            }
+		for (var instance : entity.getActiveEffects()) {
+			var effect = instance.getEffect();
+			var duration = instance.getDuration();
 
-            if (blocklist.contains(effect)) continue;
+			if (blocklist.contains(effect))
+				continue;
 
+			if (!effectCache.containsKey(entity.getUUID()) || !map.containsKey(effect) || map.get(effect) == 0) {
+				triggerEffectVFX(entity, effect);
+				triggerSoundAndParticles(level, entity, effect);
+			} else if (duration > map.getOrDefault(effect, 0) + MEVConfig.CLIENT.refresh_cooldown.get()) {
+				triggerEffectVFX(entity, effect);
+				triggerSoundAndParticles(level, entity, effect);
+			}
 
-            boolean flag = false;
-            for(var hello : effectCache.getOrDefault(entity, Collections.emptySet())) {
-                if(effect == hello.getEffect()) flag = true;
-            }
+			newMap.put(effect, duration);
+		}
+		effectCache.put(entity.getUUID(), newMap);
+	}
 
-            if (effectCache.containsKey(entity) && !flag) {
-                triggerEffectVFX(entity, effect);
-                triggerSoundAndParticles(entity, effect);
-            } else if (currentDuration > oldDuration + MEVConfig.CLIENT.refresh_cooldown.get()) {
-                triggerEffectVFX(entity, effect);
-                triggerSoundAndParticles(entity, effect);
-            }
-
-            currentEffects.put(entity, new HashSet<>(entity.getActiveEffects()));
-        }
-        effectCache.putAll(currentEffects);
-    }
-
-    @SubscribeEvent
-    public static void onEntityLeave(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
-            effectCache.remove(event.getEntity());
-        }
-    }
+	@SubscribeEvent
+	public static void onEntityLeave(EntityLeaveLevelEvent event) {
+		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
+			effectCache.remove(event.getEntity().getUUID());
+		}
+	}
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -145,13 +136,12 @@ public class ClientSideRenderEvent {
 		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
 	}
 
-	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
-		var level = Minecraft.getInstance().level;
-
+	private static void triggerSoundAndParticles(ClientLevel level, LivingEntity entity, MobEffect effect) {
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
-		level.playLocalSound(entity.blockPosition(), sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-				SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
+		// level.playLocalSound(entity.blockPosition(), sound == null ?
+		// SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+		// SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100, 1, true);
 
 		spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
@@ -164,7 +154,7 @@ public class ClientSideRenderEvent {
 				? MEVParticles.RISING_PARTICLES.get()
 				: MEVParticles.LOWERING_PARTICLES.get();
 
-		var random = level.getRandom();
+		var random = level.getRandom().fork();
 		for (int i = 0; i < 3; i++) {
 			level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
 					entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),

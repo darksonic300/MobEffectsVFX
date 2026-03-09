@@ -13,6 +13,33 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
 public class RisingCuboidRenderer extends CuboidRenderer {
+	/*
+	 * @SubscribeEvent public static void onLivingTick(LivingEvent.LivingTickEvent
+	 * event) { if (Minecraft.getInstance().level == null ||
+	 * !Minecraft.getInstance().level.isClientSide()) return; ClientLevel level =
+	 * Minecraft.getInstance().level; LivingEntity entity = event.getEntity();
+	 * if(entity == null || entity.getActiveEffects().isEmpty()) { return; }
+	 * 
+	 * for (MobEffectInstance entry : entity.getActiveEffects()) { MobEffect effect
+	 * = entry.getEffect(); int currentDuration = entry.getDuration(); int
+	 * oldDuration = 0;
+	 * 
+	 * if (blocklist.contains(effect)) continue;
+	 * 
+	 * boolean flag = false; for(var oldEffect :
+	 * effectCache.getOrDefault(entity.getUUID(), Collections.emptySet())) {
+	 * if(effect == oldEffect.getEffect()) { oldDuration = oldEffect.getDuration();
+	 * flag = true; } }
+	 * 
+	 * if (!effectCache.containsKey(entity.getUUID()) || !flag) {
+	 * triggerEffectVFX(entity, effect); triggerSoundAndParticles(level, entity,
+	 * effect); } else if (currentDuration > oldDuration +
+	 * MEVConfig.CLIENT.refresh_cooldown.get()) { triggerEffectVFX(entity, effect);
+	 * triggerSoundAndParticles(level, entity, effect); } }
+	 * 
+	 * if(!entity.getActiveEffects().isEmpty()) effectCache.put(entity.getUUID(),
+	 * new HashSet<>(entity.getActiveEffects())); }
+	 */
 
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
