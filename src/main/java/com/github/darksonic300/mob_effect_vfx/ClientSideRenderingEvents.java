@@ -6,10 +6,13 @@ import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -23,9 +26,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Chicken;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
@@ -40,7 +42,9 @@ public class ClientSideRenderingEvents {
 	private static long animationDurationMs;
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
-	private static final Map<UUID, Map<MobEffect, Integer>> effectCache = new HashMap<>();
+	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
+			.expireAfterAccess(5, TimeUnit.MINUTES)
+			.build();
 
 	@SubscribeEvent
 	public static void onLivingTick(LivingEvent.LivingTickEvent event) {
@@ -51,7 +55,7 @@ public class ClientSideRenderingEvents {
 
 		var level = Minecraft.getInstance().level;
 		var entity = event.getEntity();
-		var map = effectCache.computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+		var map = effectCache.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
 		for (var instance : entity.getActiveEffects()) {
 			var effect = instance.getEffect();
@@ -76,8 +80,13 @@ public class ClientSideRenderingEvents {
 	@SubscribeEvent
 	public static void onEntityLeave(EntityLeaveLevelEvent event) {
 		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
-			effectCache.remove(event.getEntity().getUUID());
+			effectCache.invalidate(event.getEntity().getUUID());
 		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerLeave(ClientPlayerNetworkEvent event) {
+		effectCache.invalidateAll();
 	}
 
 	@SubscribeEvent
