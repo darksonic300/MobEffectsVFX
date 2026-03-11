@@ -48,8 +48,8 @@ public class MobEffectsVFX {
 
 		@SubscribeEvent
 		public static void onConfigLoad(final ModConfigEvent event) {
-			ClientSideRenderEvent.blocklist.clear();
-			ClientSideRenderEvent.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+			ClientSideRenderingEvents.blocklist.clear();
+			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(entry))).toList());
 		}
 	}
