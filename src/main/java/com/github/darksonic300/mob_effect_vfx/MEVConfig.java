@@ -15,7 +15,7 @@ public class MEVConfig {
 		public final ForgeConfigSpec.DoubleValue opacity;
 		public final ForgeConfigSpec.IntValue refresh_cooldown;
 		public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
-		public final ForgeConfigSpec.ConfigValue<ActivationTriggers> action;
+		//public final ForgeConfigSpec.ConfigValue<ActivationTriggers> action;
 		public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocklist;
 
 		public final ForgeConfigSpec.ConfigValue<String> soundEffect;
@@ -45,11 +45,13 @@ public class MEVConfig {
 					.defineInRange("Cooldown", 150, 0, 5000);
 			builder.pop();
 
+			/*
 			builder.push("Rendering");
 			action = builder.comment("Option to choose specific actions to trigger effects.")
 					.translation("config." + MobEffectsVFX.MODID + ".activation")
 					.defineEnum("Activation", ActivationTriggers.ALL);
 			builder.pop();
+			 */
 
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")

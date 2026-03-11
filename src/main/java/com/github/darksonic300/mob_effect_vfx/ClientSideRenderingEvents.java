@@ -43,8 +43,7 @@ public class ClientSideRenderingEvents {
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
 	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(5, TimeUnit.MINUTES)
-			.build();
+			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
 	@SubscribeEvent
 	public static void onLivingTick(LivingEvent.LivingTickEvent event) {
@@ -103,11 +102,11 @@ public class ClientSideRenderingEvents {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-        for (MobEffectsVFX.ActiveEffectVisual activeVisual : List.copyOf(activeVisuals)) {
-            poseStack.pushPose();
-            animationLoop(event, bufferSource, activeVisual);
-            poseStack.popPose();
-        }
+		for (MobEffectsVFX.ActiveEffectVisual activeVisual : List.copyOf(activeVisuals)) {
+			poseStack.pushPose();
+			animationLoop(event, bufferSource, activeVisual);
+			poseStack.popPose();
+		}
 		bufferSource.endBatch();
 	}
 
@@ -136,16 +135,10 @@ public class ClientSideRenderingEvents {
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
 		Minecraft.getInstance().execute(() -> {
-			Minecraft.getInstance().getSoundManager().play(
-					new SimpleSoundInstance(
-							sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-							SoundSource.AMBIENT,
-							(float) MEVConfig.CLIENT.volume.get() / 100f,
-							1.0f,
-							level.getRandom().fork(),
-							entity.blockPosition()
-					)
-			);
+			Minecraft.getInstance().getSoundManager()
+					.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+							SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
+							level.getRandom().fork(), entity.blockPosition()));
 			spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 		});
 	}
