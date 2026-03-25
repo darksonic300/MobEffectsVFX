@@ -8,7 +8,6 @@ import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 
 import java.util.*;
@@ -55,32 +54,37 @@ public class ClientSideRenderingEvents {
 		if (!(event.getEntity() instanceof LivingEntity living))
 			return;
 
-		var level = Minecraft.getInstance().level;
-		var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
+		try {
+			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
 
-		for (var instance : living.getActiveEffects()) {
-			var effect = instance.getEffect().value();
-			var duration = instance.getDuration();
+			for (var instance : living.getActiveEffects()) {
+				var effect = instance.getEffect().value();
+				var duration = instance.getDuration();
 
-			if (blocklist.contains(effect))
-				continue;
+				if (blocklist.contains(effect))
+					continue;
 
-			if (!map.containsKey(effect)) {
-				triggerEffectVFX(living, effect);
-				triggerSoundAndParticles(level, living, effect);
-			} else if (duration > map.getOrDefault(effect, 0) + MEVConfig.CLIENT.refresh_cooldown.get()) {
-				triggerEffectVFX(living, effect);
-				triggerSoundAndParticles(level, living, effect);
+				if (!map.containsKey(effect)) {
+					MobEffectsVFX.LOGGER.debug("Effect {} not present yet. Applying...", effect);
+					triggerEffectVFX(living, effect);
+					triggerSoundAndParticles(living, effect);
+				} else if (duration > map.getOrDefault(effect, 0) + MEVConfig.CLIENT.refresh_cooldown.get()) {
+					MobEffectsVFX.LOGGER.debug("Effect {} has to be refreshed. Reapplying...", effect);
+					triggerEffectVFX(living, effect);
+					triggerSoundAndParticles(living, effect);
+				}
+				map.put(effect, duration);
 			}
-
-			map.put(effect, duration);
+			effectCache.put(living.getUUID(), map);
+		} catch (Exception e) {
+			MobEffectsVFX.LOGGER.error("Error processing effect visuals for entity {}. Skipping", event.getEntity().getUUID(), e);
 		}
-		effectCache.put(living.getUUID(), map);
 	}
 
 	@SubscribeEvent
 	public static void onEntityLeave(EntityLeaveLevelEvent event) {
 		if (event.getEntity() instanceof LivingEntity living && event.getLevel().isClientSide()) {
+			MobEffectsVFX.LOGGER.debug("Invalidating effect cache for entity {}", living.getUUID());
 			effectCache.invalidate(living.getUUID());
 			activeVisuals.removeIf(visual -> visual.source().equals(living));
 		}
@@ -88,6 +92,7 @@ public class ClientSideRenderingEvents {
 
 	@SubscribeEvent
 	public static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event) {
+		MobEffectsVFX.LOGGER.info("Player exited. Clearing effect cache");
 		effectCache.invalidateAll();
 	}
 
@@ -105,12 +110,19 @@ public class ClientSideRenderingEvents {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-		for (MobEffectsVFX.ActiveEffectVisual activeVisual : activeVisuals) {
-			poseStack.pushPose();
-			animationLoop(event, bufferSource, activeVisual);
-			poseStack.popPose();
+		try{
+			for (MobEffectsVFX.ActiveEffectVisual activeVisual : activeVisuals) {
+					poseStack.pushPose();
+					animationLoop(event, bufferSource, activeVisual);
+					poseStack.popPose();
+			}
+			bufferSource.endBatch();
+		} catch (Exception e) {
+			MobEffectsVFX.LOGGER.error("Error during activeVisuals' iteration", e);
+			throw e;
+		} finally {
+			activeVisuals.clear();
 		}
-		bufferSource.endBatch();
 	}
 
 	/**
@@ -138,7 +150,7 @@ public class ClientSideRenderingEvents {
 		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
 	}
 
-	private static void triggerSoundAndParticles(ClientLevel level, LivingEntity entity, MobEffect effect) {
+	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
 		SoundEvent sound = BuiltInRegistries.SOUND_EVENT
 				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 

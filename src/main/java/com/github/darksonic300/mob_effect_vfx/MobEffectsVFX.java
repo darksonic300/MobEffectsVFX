@@ -4,6 +4,8 @@ import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
 import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
+import com.mojang.logging.LogUtils;
+import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -19,10 +21,13 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.apache.logging.slf4j.Log4jLogger;
+import org.slf4j.Logger;
 
 @Mod(MobEffectsVFX.MODID)
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
+	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {}
 
