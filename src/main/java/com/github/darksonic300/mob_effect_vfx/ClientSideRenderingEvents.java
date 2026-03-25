@@ -52,7 +52,7 @@ public class ClientSideRenderingEvents {
 	public static void onLivingTick(EntityTickEvent.Post event) {
 		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
 			return;
-		if (event.getEntity() == null || !(event.getEntity() instanceof LivingEntity living))
+		if (!(event.getEntity() instanceof LivingEntity living))
 			return;
 
 		var level = Minecraft.getInstance().level;
@@ -80,8 +80,9 @@ public class ClientSideRenderingEvents {
 
 	@SubscribeEvent
 	public static void onEntityLeave(EntityLeaveLevelEvent event) {
-		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
-			effectCache.invalidate(event.getEntity().getUUID());
+		if (event.getEntity() instanceof LivingEntity living && event.getLevel().isClientSide()) {
+			effectCache.invalidate(living.getUUID());
+			activeVisuals.removeIf(visual -> visual.source().equals(living));
 		}
 	}
 
@@ -118,6 +119,11 @@ public class ClientSideRenderingEvents {
 	 */
 	private static void animationLoop(RenderLevelStageEvent event, MultiBufferSource.BufferSource bufferSource,
 			MobEffectsVFX.ActiveEffectVisual visual) {
+		if (visual.source() == null || !visual.source().isAlive()) {
+			activeVisuals.remove(visual);
+			return;
+		}
+
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
@@ -137,11 +143,15 @@ public class ClientSideRenderingEvents {
 				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
 		Minecraft.getInstance().execute(() -> {
+			var clientLevel = Minecraft.getInstance().level;
+			if (clientLevel == null)
+				return;
+
 			Minecraft.getInstance().getSoundManager()
 					.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
 							SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
 							RandomSource.create(), entity.blockPosition()));
-			spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
+			spawnParticles(clientLevel, effect, entity, MEVColor.getEffectColor(effect));
 		});
 	}
 

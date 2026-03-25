@@ -42,11 +42,11 @@ public class StationaryCuboidRenderer extends CuboidRenderer {
 		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
 		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-		double visualX = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0);
-		double visualZ = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
+		double visualX = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0);
+		double visualZ = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
 
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
+		double y = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);
