@@ -1,27 +1,22 @@
 package com.github.darksonic300.mob_effect_vfx;
 
-import com.github.darksonic300.mob_effect_vfx.util.ActivationTriggers;
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class MEVConfig {
-
 	public static class Client {
+		public final ModConfigSpec.IntValue duration;
+		public final ModConfigSpec.DoubleValue opacity;
+		public final ModConfigSpec.IntValue refresh_cooldown;
+		public final ModConfigSpec.ConfigValue<EffectTypes> effect_type;
+		public final ModConfigSpec.ConfigValue<List<? extends String>> blocklist;
+		public final ModConfigSpec.ConfigValue<String> soundEffect;
+		public final ModConfigSpec.IntValue volume;
 
-		public final ForgeConfigSpec.IntValue duration;
-		public final ForgeConfigSpec.DoubleValue opacity;
-		public final ForgeConfigSpec.IntValue refresh_cooldown;
-		public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
-		//public final ForgeConfigSpec.ConfigValue<ActivationTriggers> action;
-		public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocklist;
-
-		public final ForgeConfigSpec.ConfigValue<String> soundEffect;
-		public final ForgeConfigSpec.IntValue volume;
-
-		public Client(ForgeConfigSpec.Builder builder) {
+		public Client(ModConfigSpec.Builder builder) {
 			builder.push("Rendering");
 			duration = builder.comment("The duration in MS for the effects.")
 					.translation("config." + MobEffectsVFX.MODID + ".duration")
@@ -46,17 +41,16 @@ public class MEVConfig {
 			builder.pop();
 
 			/*
-			builder.push("Rendering");
-			action = builder.comment("Option to choose specific actions to trigger effects.")
-					.translation("config." + MobEffectsVFX.MODID + ".activation")
-					.defineEnum("Activation", ActivationTriggers.ALL);
-			builder.pop();
+			 * builder.push("Rendering"); action =
+			 * builder.comment("Option to choose specific actions to trigger effects.")
+			 * .translation("config." + MobEffectsVFX.MODID + ".activation")
+			 * .defineEnum("Activation", ActivationTriggers.ALL); builder.pop();
 			 */
 
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")
 					.translation("config." + MobEffectsVFX.MODID + ".blacklist")
-					.defineList("Blocklist", List.of(), obj -> ResourceLocation.isValidResourceLocation((String) obj));
+					.defineListAllowEmpty("Blocklist", List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
 			builder.pop();
 
 			builder.push("Sound");
@@ -72,8 +66,8 @@ public class MEVConfig {
 		}
 	}
 
-	static final Pair<Client, ForgeConfigSpec> clientSpecPair = new ForgeConfigSpec.Builder().configure(Client::new);
+	static final Pair<Client, ModConfigSpec> clientSpecPair = new ModConfigSpec.Builder().configure(Client::new);
 
-	public static final ForgeConfigSpec CLIENT_SPEC = clientSpecPair.getRight();
+	public static final ModConfigSpec CLIENT_SPEC = clientSpecPair.getRight();
 	public static final Client CLIENT = clientSpecPair.getLeft();
 }

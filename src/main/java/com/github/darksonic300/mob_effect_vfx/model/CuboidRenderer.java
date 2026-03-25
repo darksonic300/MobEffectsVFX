@@ -42,7 +42,7 @@ public abstract class CuboidRenderer implements IEffectRenderer {
 
 	static void addVertex(VertexConsumer buffer, Matrix4f matrix, float x, float y, float z, float r, float g, float b,
 			float a) {
-		buffer.vertex(matrix, x, y, z).color(r, g, b, a).endVertex();
+		buffer.addVertex(matrix, x, y, z).setColor(r, g, b, a);
 	}
 
 	static float calculateAlpha(float alpha, double progress) {

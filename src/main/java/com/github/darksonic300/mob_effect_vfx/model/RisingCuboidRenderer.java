@@ -9,7 +9,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
 public class RisingCuboidRenderer extends CuboidRenderer {
@@ -51,14 +51,14 @@ public class RisingCuboidRenderer extends CuboidRenderer {
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
 		// Calculate animated properties
-		float baseSize = source.getDimensions(Pose.STANDING).width + 0.7F;
-		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height / 2) + 0.5F);
+		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
+		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height() / 2) + 0.5F);
 
 		// Apply camera offset transformation
-		double x = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
-		double y = Mth.lerp(event.getPartialTick(), source.yo, source.getY()) - camera.y;
+		double x = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
+		double y = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
 		y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
-		double z = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0) - camera.z;
+		double z = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0) - camera.z;
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, baseSize, baseSize);

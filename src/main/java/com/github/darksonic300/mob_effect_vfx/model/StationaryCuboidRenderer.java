@@ -8,9 +8,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
 public class StationaryCuboidRenderer extends CuboidRenderer {
@@ -40,14 +39,14 @@ public class StationaryCuboidRenderer extends CuboidRenderer {
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
 
-		float baseSize = source.getDimensions(Pose.STANDING).width + 0.7F;
+		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
 		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-		double visualX = Mth.lerp(event.getPartialTick(), source.xo, source.getX()) - (baseSize / 2.0);
-		double visualZ = Mth.lerp(event.getPartialTick(), source.zo, source.getZ()) - (baseSize / 2.0);
+		double visualX = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0);
+		double visualZ = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
 
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick(), source.yo, source.getY()) - camera.y;
+		double y = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);

@@ -7,9 +7,8 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class VisualParticles extends TextureSheetParticle {
@@ -53,9 +52,9 @@ public abstract class VisualParticles extends TextureSheetParticle {
 		this.yd -= 0.04D * (double) this.gravity;
 		this.offsety += this.yd;
 
-		this.setPos(Mth.lerp(mc.getPartialTick(), this.x, mc.player.getX() + offsetx),
-				Mth.lerp(mc.getPartialTick(), this.y, mc.player.getY() + offsety),
-				Mth.lerp(mc.getPartialTick(), this.z, mc.player.getZ() + offsetz));
+		this.setPos(Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.x, mc.player.getX() + offsetx),
+				Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.y, mc.player.getY() + offsety),
+				Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.z, mc.player.getZ() + offsetz));
 
 		this.yd *= this.friction;
 	}
