@@ -19,6 +19,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.apache.logging.slf4j.Log4jLogger;
@@ -39,6 +40,12 @@ public class MobEffectsVFX {
 	@SuppressWarnings("deprecated")
 	@EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 	public static class ModClientBusEvents {
+
+		@SubscribeEvent
+		public static void onModInit(final FMLClientSetupEvent event) {
+			MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log!");
+		}
+
 		@SubscribeEvent
 		public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
 			Minecraft.getInstance().particleEngine.register(MEVParticles.RISING_PARTICLES.get(),
@@ -49,9 +56,13 @@ public class MobEffectsVFX {
 
 		@SubscribeEvent
 		public static void onConfigLoad(final ModConfigEvent event) {
+			MobEffectsVFX.LOGGER.info("Loading Blacklist config");
 			ClientSideRenderingEvents.blocklist.clear();
-			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
-					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
+			ClientSideRenderingEvents.blocklist.addAll(
+					MEVConfig.CLIENT.blocklist.get().stream()
+					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry)))
+							.toList()
+			);
 		}
 	}
 }
