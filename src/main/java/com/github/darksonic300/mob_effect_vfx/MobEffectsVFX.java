@@ -18,9 +18,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.ForgeRegistries;
 
-@Mod(MobEffectsVFX.MODID)
+@Mod(value = MobEffectsVFX.MODID)
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 
@@ -28,11 +29,11 @@ public class MobEffectsVFX {
 	}
 
 	public MobEffectsVFX() {
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+		if(!FMLLoader.getDist().equals(Dist.CLIENT)) return;
 
+		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 		MEVParticles.register(modEventBus);
 		MinecraftForge.EVENT_BUS.register(this);
-
 		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
