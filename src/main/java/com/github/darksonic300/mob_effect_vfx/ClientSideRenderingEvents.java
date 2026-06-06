@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import net.minecraft.Util;
@@ -25,6 +26,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -42,6 +44,7 @@ public class ClientSideRenderingEvents {
 	private static long animationDurationMs;
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
 	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
+    public static final Set<EntityType> entityBlocklist = ConcurrentHashMap.newKeySet();
 	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
 			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
@@ -51,6 +54,12 @@ public class ClientSideRenderingEvents {
 			return;
 		if (event.getEntity() == null)
 			return;
+
+        for (var entity : entityBlocklist) {
+            if (entity.equals(event.getEntity().getType())) {
+                return;
+            }
+        }
 
 		var level = Minecraft.getInstance().level;
 		var entity = event.getEntity();

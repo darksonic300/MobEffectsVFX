@@ -5,6 +5,7 @@ import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
 import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
 import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,6 +53,10 @@ public class MobEffectsVFX {
 			ClientSideRenderingEvents.blocklist.clear();
 			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(entry))).toList());
+
+            ClientSideRenderingEvents.entityBlocklist.clear();
+			ClientSideRenderingEvents.entityBlocklist.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+					.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
 		}
 	}
 }
