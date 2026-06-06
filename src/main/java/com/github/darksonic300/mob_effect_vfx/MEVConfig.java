@@ -13,6 +13,7 @@ public class MEVConfig {
 		public final ModConfigSpec.IntValue refresh_cooldown;
 		public final ModConfigSpec.ConfigValue<EffectTypes> effect_type;
 		public final ModConfigSpec.ConfigValue<List<? extends String>> blocklist;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> entityBlocklist;
 		public final ModConfigSpec.ConfigValue<String> soundEffect;
 		public final ModConfigSpec.IntValue volume;
 
@@ -49,9 +50,15 @@ public class MEVConfig {
 
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")
-					.translation("config." + MobEffectsVFX.MODID + ".blacklist").defineListAllowEmpty("Blocklist",
+					.translation("config." + MobEffectsVFX.MODID + ".blocklist").defineListAllowEmpty("Blocklist",
 							List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
 			builder.pop();
+
+            builder.push("General");
+            entityBlocklist = builder.comment("A list of entities you want to exclude.")
+                    .translation("config." + MobEffectsVFX.MODID + ".entityBlocklist").defineListAllowEmpty("Entity Blocklist",
+                            List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
+            builder.pop();
 
 			builder.push("Sound");
 			soundEffect = builder.comment("Change the sound used when an effect is applied.")

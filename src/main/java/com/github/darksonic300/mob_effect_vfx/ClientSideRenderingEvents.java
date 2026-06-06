@@ -41,11 +41,19 @@ public class ClientSideRenderingEvents {
 		try {
 			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
 
-			var filteredList = living.getActiveEffects().stream().map(MobEffectInstance::getEffect).map(Holder::value)
-					.filter(Predicate.not(blocklist::contains)).toList();
+			var filteredList = living.getActiveEffects().stream()
+                    .map(MobEffectInstance::getEffect)
+                    .map(Holder::value)
+					.filter(Predicate.not(blocklist::contains))
+                    .toList();
 
 			for (var effect : filteredList) {
-				var duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
+				int duration;
+                try {
+                    duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
+                } catch (Exception e) {
+                    duration = 0;
+                }
 
 				if (!map.containsKey(effect)) {
 					MobEffectsVFX.LOGGER.debug("Effect {} not present yet. Applying...", effect);
@@ -60,7 +68,7 @@ public class ClientSideRenderingEvents {
 			}
 			effectCache.put(living.getUUID(), map);
 		} catch (Exception e) {
-			MobEffectsVFX.LOGGER.error("Error processing effect visuals for entity {}. Skipping",
+			MobEffectsVFX.LOGGER.warn("Error processing effect visuals for entity {}. Skipping.",
 					event.getEntity().getUUID(), e);
 		}
 	}
