@@ -1,11 +1,6 @@
 package com.github.darksonic300.mob_effect_vfx;
 
-import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
-import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
-import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
-import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
-import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
-import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
+import com.github.darksonic300.mob_effect_vfx.util.VisualLogic;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.*;
@@ -14,43 +9,30 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
-import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class ClientSideRenderingEvents {
-	private static final float PARTICLE_RANGE = 0.6F;
-
-	private static long animationDurationMs;
 	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new CopyOnWriteArrayList<>();
 	public static final Set<MobEffect> blocklist = ConcurrentHashMap.newKeySet();
 	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(5, TimeUnit.MINUTES).build();
+			.expireAfterAccess(3, TimeUnit.MINUTES).build();
 
 	@SubscribeEvent
-	public static void onLivingTick(EntityTickEvent.Post event) {
+	public static void onLivingTick(EntityTickEvent.Pre event) {
 		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
 			return;
 		if (!(event.getEntity() instanceof LivingEntity living))
@@ -59,21 +41,23 @@ public class ClientSideRenderingEvents {
 		try {
 			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
 
-			for (var instance : living.getActiveEffects()) {
-				var effect = instance.getEffect().value();
-				var duration = instance.getDuration();
+			var filteredList = living.getActiveEffects().stream()
+					.map(MobEffectInstance::getEffect)
+					.map(Holder::value)
+					.filter(Predicate.not(blocklist::contains))
+					.toList();
 
-				if (blocklist.contains(effect))
-					continue;
+			for (var effect : filteredList) {
+				var duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
 
 				if (!map.containsKey(effect)) {
 					MobEffectsVFX.LOGGER.debug("Effect {} not present yet. Applying...", effect);
-					triggerEffectVFX(living, effect);
-					triggerSoundAndParticles(living, effect);
+					VisualLogic.triggerEffectVFX(living, effect);
+					VisualLogic.triggerSoundAndParticles(living, effect);
 				} else if (duration > map.getOrDefault(effect, 0) + MEVConfig.CLIENT.refresh_cooldown.get()) {
 					MobEffectsVFX.LOGGER.debug("Effect {} has to be refreshed. Reapplying...", effect);
-					triggerEffectVFX(living, effect);
-					triggerSoundAndParticles(living, effect);
+					VisualLogic.triggerEffectVFX(living, effect);
+					VisualLogic.triggerSoundAndParticles(living, effect);
 				}
 				map.put(effect, duration);
 			}
@@ -83,14 +67,7 @@ public class ClientSideRenderingEvents {
 					event.getEntity().getUUID(), e);
 		}
 	}
-	/*
-	 * @SubscribeEvent public static void onEntityLeave(EntityLeaveLevelEvent event)
-	 * { if (event.getEntity() instanceof LivingEntity living &&
-	 * event.getLevel().isClientSide()) {
-	 * MobEffectsVFX.LOGGER.debug("Invalidating effect cache for entity {}",
-	 * living.getUUID()); effectCache.invalidate(living.getUUID());
-	 * activeVisuals.removeIf(visual -> visual.source().equals(living)); } }
-	 */
+
 	@SubscribeEvent
 	public static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event) {
 		MobEffectsVFX.LOGGER.info("Player exited. Clearing effect cache");
@@ -99,8 +76,6 @@ public class ClientSideRenderingEvents {
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(RenderLevelStageEvent event) {
-		animationDurationMs = MEVConfig.CLIENT.duration.get();
-
 		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
 			return;
 
@@ -114,7 +89,7 @@ public class ClientSideRenderingEvents {
 		try {
 			for (MobEffectsVFX.ActiveEffectVisual activeVisual : activeVisuals) {
 				poseStack.pushPose();
-				animationLoop(event, bufferSource, activeVisual);
+				VisualLogic.animationLoop(event, bufferSource, activeVisual);
 				poseStack.popPose();
 			}
 			bufferSource.endBatch();
@@ -122,72 +97,5 @@ public class ClientSideRenderingEvents {
 			MobEffectsVFX.LOGGER.error("Error during activeVisuals' iteration", e);
 			throw e;
 		}
-	}
-
-	/**
-	 * Handles animation logic for the vfx, the model definition is found in
-	 * CuboidModel.java
-	 */
-	private static void animationLoop(RenderLevelStageEvent event, MultiBufferSource.BufferSource bufferSource,
-			MobEffectsVFX.ActiveEffectVisual visual) {
-		if (visual.source() == null || !visual.source().isAlive()) {
-			activeVisuals.remove(visual);
-			return;
-		}
-
-		MobEffectCategory effectCategory = visual.effect().getCategory();
-		long elapsedTime = Util.getMillis() - visual.startTime();
-		// Calculate animation progress (0.0 to 1.0)
-		float progress = (float) elapsedTime / animationDurationMs;
-
-		if (progress >= 1.0F) {
-			activeVisuals.remove(visual);
-			return;
-		}
-
-		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
-		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
-	}
-
-	private static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
-		SoundEvent sound = BuiltInRegistries.SOUND_EVENT
-				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
-
-		Minecraft.getInstance().execute(() -> {
-			var clientLevel = Minecraft.getInstance().level;
-			if (clientLevel == null)
-				return;
-
-			Minecraft.getInstance().getSoundManager()
-					.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-							SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
-							RandomSource.create(), entity.blockPosition()));
-			spawnParticles(clientLevel, effect, entity, MEVColor.getEffectColor(effect));
-		});
-	}
-
-	private static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
-		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
-			return;
-
-		var particle = effect.isBeneficial()
-				? MEVParticles.RISING_PARTICLES.get()
-				: MEVParticles.LOWERING_PARTICLES.get();
-
-		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.fRand(-PARTICLE_RANGE, 0f),
-					entity.getY() + 1 + MthUtils.fRand(0f, PARTICLE_RANGE),
-					entity.getZ() + MthUtils.fRand(0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
-		}
-		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.fRand(0f, PARTICLE_RANGE),
-					entity.getY() + 1 + MthUtils.fRand(-PARTICLE_RANGE, 0f),
-					entity.getZ() + MthUtils.fRand(-PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
-		}
-	}
-
-	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
-		MEVColor color = MEVColor.getEffectColor(effect);
-		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis(), color));
 	}
 }
