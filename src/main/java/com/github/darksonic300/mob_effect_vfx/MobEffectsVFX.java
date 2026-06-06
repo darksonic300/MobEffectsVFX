@@ -55,10 +55,14 @@ public class MobEffectsVFX {
 
 		@SubscribeEvent
 		public static void onConfigLoad(final ModConfigEvent event) {
-			MobEffectsVFX.LOGGER.info("Loading Blacklist config");
+			MobEffectsVFX.LOGGER.info("Loading Blocklists config");
 			ClientSideRenderingEvents.blocklist.clear();
 			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
+
+			ClientSideRenderingEvents.entityBlocklist.clear();
+			ClientSideRenderingEvents.entityBlocklist.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+					.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
 		}
 	}
 }

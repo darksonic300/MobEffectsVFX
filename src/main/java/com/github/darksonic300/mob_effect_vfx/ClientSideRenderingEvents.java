@@ -16,6 +16,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -28,6 +30,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 public class ClientSideRenderingEvents {
 	public static final List<VisualLogic.ActiveEffectVisual> activeVisuals = new CopyOnWriteArrayList<>();
 	public static final Set<MobEffect> blocklist = ConcurrentHashMap.newKeySet();
+	public static final Set<EntityType> entityBlocklist = ConcurrentHashMap.newKeySet();
 	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
 			.expireAfterAccess(3, TimeUnit.MINUTES).build();
 
@@ -37,6 +40,13 @@ public class ClientSideRenderingEvents {
 			return;
 		if (!(event.getEntity() instanceof LivingEntity living))
 			return;
+
+		for (var entity : entityBlocklist) {
+			if (entity.equals(living.getType())) {
+				MobEffectsVFX.LOGGER.debug("Entity {} in the blocklist.", entity);
+				return;
+			}
+		}
 
 		try {
 			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
