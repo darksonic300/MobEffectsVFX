@@ -35,6 +35,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
@@ -80,7 +82,7 @@ public class ClientSideRenderingEvents {
 			MobEffectsVFX.LOGGER.error("Error processing effect visuals for entity {}. Skipping", event.getEntity().getUUID(), e);
 		}
 	}
-
+/*
 	@SubscribeEvent
 	public static void onEntityLeave(EntityLeaveLevelEvent event) {
 		if (event.getEntity() instanceof LivingEntity living && event.getLevel().isClientSide()) {
@@ -89,7 +91,7 @@ public class ClientSideRenderingEvents {
 			activeVisuals.removeIf(visual -> visual.source().equals(living));
 		}
 	}
-
+*/
 	@SubscribeEvent
 	public static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event) {
 		MobEffectsVFX.LOGGER.info("Player exited. Clearing effect cache");
@@ -120,8 +122,6 @@ public class ClientSideRenderingEvents {
 		} catch (Exception e) {
 			MobEffectsVFX.LOGGER.error("Error during activeVisuals' iteration", e);
 			throw e;
-		} finally {
-			activeVisuals.clear();
 		}
 	}
 

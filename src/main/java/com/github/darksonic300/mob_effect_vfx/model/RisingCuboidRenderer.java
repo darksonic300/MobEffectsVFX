@@ -55,7 +55,7 @@ public class RisingCuboidRenderer extends CuboidRenderer {
 		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height() / 2) + 0.5F);
 
 		// Apply camera offset transformation
-		float partialTick = event.getPartialTick().getGameTimeDeltaTicks();
+		float partialTick = event.getPartialTick().getRealtimeDeltaTicks();
 		double x = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
 		double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
 		y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
