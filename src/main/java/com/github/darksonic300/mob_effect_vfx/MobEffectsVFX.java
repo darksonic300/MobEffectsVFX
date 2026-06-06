@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -25,7 +26,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.apache.logging.slf4j.Log4jLogger;
 import org.slf4j.Logger;
 
-@Mod(MobEffectsVFX.MODID)
+@Mod(value = MobEffectsVFX.MODID, dist = Dist.CLIENT)
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 	public static final Logger LOGGER = LogUtils.getLogger();
