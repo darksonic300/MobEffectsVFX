@@ -41,19 +41,16 @@ public class ClientSideRenderingEvents {
 		try {
 			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
 
-			var filteredList = living.getActiveEffects().stream()
-                    .map(MobEffectInstance::getEffect)
-                    .map(Holder::value)
-					.filter(Predicate.not(blocklist::contains))
-                    .toList();
+			var filteredList = living.getActiveEffects().stream().map(MobEffectInstance::getEffect).map(Holder::value)
+					.filter(Predicate.not(blocklist::contains)).toList();
 
 			for (var effect : filteredList) {
 				int duration;
-                try {
-                    duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
-                } catch (Exception e) {
-                    duration = 0;
-                }
+				try {
+					duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
+				} catch (Exception e) {
+					duration = 0;
+				}
 
 				if (!map.containsKey(effect)) {
 					MobEffectsVFX.LOGGER.debug("Effect {} not present yet. Applying...", effect);
