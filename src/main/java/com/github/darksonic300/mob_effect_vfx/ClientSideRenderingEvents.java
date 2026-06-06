@@ -26,7 +26,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class ClientSideRenderingEvents {
-	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new CopyOnWriteArrayList<>();
+	public static final List<VisualLogic.ActiveEffectVisual> activeVisuals = new CopyOnWriteArrayList<>();
 	public static final Set<MobEffect> blocklist = ConcurrentHashMap.newKeySet();
 	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
 			.expireAfterAccess(3, TimeUnit.MINUTES).build();
@@ -41,11 +41,8 @@ public class ClientSideRenderingEvents {
 		try {
 			var map = effectCache.asMap().computeIfAbsent(living.getUUID(), k -> new HashMap<>());
 
-			var filteredList = living.getActiveEffects().stream()
-					.map(MobEffectInstance::getEffect)
-					.map(Holder::value)
-					.filter(Predicate.not(blocklist::contains))
-					.toList();
+			var filteredList = living.getActiveEffects().stream().map(MobEffectInstance::getEffect).map(Holder::value)
+					.filter(Predicate.not(blocklist::contains)).toList();
 
 			for (var effect : filteredList) {
 				var duration = living.getActiveEffectsMap().get(Holder.direct(effect)).getDuration();
@@ -87,7 +84,7 @@ public class ClientSideRenderingEvents {
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
 		try {
-			for (MobEffectsVFX.ActiveEffectVisual activeVisual : activeVisuals) {
+			for (var activeVisual : activeVisuals) {
 				poseStack.pushPose();
 				VisualLogic.animationLoop(event, bufferSource, activeVisual);
 				poseStack.popPose();

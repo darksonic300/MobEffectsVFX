@@ -30,23 +30,20 @@ public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
-	}
-
 	public MobEffectsVFX(IEventBus bus, ModContainer modContainer) {
 		MEVParticles.register(bus);
 		modContainer.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
-	@SuppressWarnings("deprecated")
 	@EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 	public static class ModClientBusEvents {
 
 		@SubscribeEvent
 		public static void onModInit(final FMLClientSetupEvent event) {
-			MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log!");
+			MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log.");
 		}
 
+		@SuppressWarnings("deprecated")
 		@SubscribeEvent
 		public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
 			Minecraft.getInstance().particleEngine.register(MEVParticles.RISING_PARTICLES.get(),
