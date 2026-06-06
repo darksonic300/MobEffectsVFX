@@ -11,7 +11,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LoweringParticles extends VisualParticles {
-	protected LoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
+	protected LoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z,
+			LivingEntity target) {
 		super(sprite, level, x, y, z, target);
 		this.gravity = 0.5f;
 	}
@@ -30,7 +31,8 @@ public class LoweringParticles extends VisualParticles {
 			if (level != null) {
 				// We try to find the entity that is closest to the particle's spawn position
 				// This is a bit of a hack since ParticleProvider doesn't receive the entity
-				target = level.getNearestEntity(LivingEntity.class, net.minecraft.world.entity.ai.targeting.TargetingConditions.DEFAULT, null, x, y, z, 
+				target = level.getNearestEntity(LivingEntity.class,
+						net.minecraft.world.entity.ai.targeting.TargetingConditions.DEFAULT, null, x, y, z,
 						new net.minecraft.world.phys.AABB(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1));
 			}
 

@@ -79,19 +79,18 @@ public class ClientSideRenderingEvents {
 			}
 			effectCache.put(living.getUUID(), map);
 		} catch (Exception e) {
-			MobEffectsVFX.LOGGER.error("Error processing effect visuals for entity {}. Skipping", event.getEntity().getUUID(), e);
+			MobEffectsVFX.LOGGER.error("Error processing effect visuals for entity {}. Skipping",
+					event.getEntity().getUUID(), e);
 		}
 	}
-/*
-	@SubscribeEvent
-	public static void onEntityLeave(EntityLeaveLevelEvent event) {
-		if (event.getEntity() instanceof LivingEntity living && event.getLevel().isClientSide()) {
-			MobEffectsVFX.LOGGER.debug("Invalidating effect cache for entity {}", living.getUUID());
-			effectCache.invalidate(living.getUUID());
-			activeVisuals.removeIf(visual -> visual.source().equals(living));
-		}
-	}
-*/
+	/*
+	 * @SubscribeEvent public static void onEntityLeave(EntityLeaveLevelEvent event)
+	 * { if (event.getEntity() instanceof LivingEntity living &&
+	 * event.getLevel().isClientSide()) {
+	 * MobEffectsVFX.LOGGER.debug("Invalidating effect cache for entity {}",
+	 * living.getUUID()); effectCache.invalidate(living.getUUID());
+	 * activeVisuals.removeIf(visual -> visual.source().equals(living)); } }
+	 */
 	@SubscribeEvent
 	public static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event) {
 		MobEffectsVFX.LOGGER.info("Player exited. Clearing effect cache");
@@ -112,11 +111,11 @@ public class ClientSideRenderingEvents {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-		try{
+		try {
 			for (MobEffectsVFX.ActiveEffectVisual activeVisual : activeVisuals) {
-					poseStack.pushPose();
-					animationLoop(event, bufferSource, activeVisual);
-					poseStack.popPose();
+				poseStack.pushPose();
+				animationLoop(event, bufferSource, activeVisual);
+				poseStack.popPose();
 			}
 			bufferSource.endBatch();
 		} catch (Exception e) {

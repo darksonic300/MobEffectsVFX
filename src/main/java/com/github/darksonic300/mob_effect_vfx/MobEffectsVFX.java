@@ -30,7 +30,8 @@ public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {}
+	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
+	}
 
 	public MobEffectsVFX(IEventBus bus, ModContainer modContainer) {
 		MEVParticles.register(bus);
@@ -58,11 +59,8 @@ public class MobEffectsVFX {
 		public static void onConfigLoad(final ModConfigEvent event) {
 			MobEffectsVFX.LOGGER.info("Loading Blacklist config");
 			ClientSideRenderingEvents.blocklist.clear();
-			ClientSideRenderingEvents.blocklist.addAll(
-					MEVConfig.CLIENT.blocklist.get().stream()
-					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry)))
-							.toList()
-			);
+			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
 		}
 	}
 }

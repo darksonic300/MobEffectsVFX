@@ -49,8 +49,8 @@ public class MEVConfig {
 
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")
-					.translation("config." + MobEffectsVFX.MODID + ".blacklist")
-					.defineListAllowEmpty("Blocklist", List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
+					.translation("config." + MobEffectsVFX.MODID + ".blacklist").defineListAllowEmpty("Blocklist",
+							List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
 			builder.pop();
 
 			builder.push("Sound");

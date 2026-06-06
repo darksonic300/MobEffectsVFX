@@ -31,14 +31,17 @@ public class FlatCuboidRenderer extends CuboidRenderer {
 				? ((source.getDimensions(Pose.STANDING).width() + 0.7F) * 1.5F) - scaleOffset
 				: (source.getScale() + 0.3F) * scaleOffset;
 
-		double visualX = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0); // Center the
-																										// cuboid on the
-																										// player
-		double visualZ = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
+		double visualX = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.xo, source.getX())
+				- (baseSize / 2.0); // Center the
+		// cuboid on the
+		// player
+		double visualZ = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.zo, source.getZ())
+				- (baseSize / 2.0);
 
 		// Apply camera offset transformation
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y + 0.01D;
+		double y = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y
+				+ 0.01D;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);
