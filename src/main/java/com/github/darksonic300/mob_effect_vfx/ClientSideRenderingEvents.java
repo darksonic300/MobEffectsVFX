@@ -8,11 +8,11 @@ import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import net.minecraft.Util;
@@ -41,118 +41,115 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class ClientSideRenderingEvents {
 	private static final float PARTICLE_RANGE = 0.6F;
 
-	private static long animationDurationMs;
-	public static final List<MobEffectsVFX.ActiveEffectVisual> activeVisuals = new ArrayList<>();
-	public static final HashSet<MobEffect> blocklist = Sets.newHashSet();
-    public static final Set<EntityType> entityBlocklist = ConcurrentHashMap.newKeySet();
-	private static final Cache<UUID, Map<MobEffect, Integer>> effectCache = CacheBuilder.newBuilder()
+	private static final List<MobEffectsVFX.ActiveEffectVisual> ACTIVE_VISUALS = new CopyOnWriteArrayList<>();
+	private static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
 			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
+	public static final Set<MobEffect> BLOCKLIST = ConcurrentHashMap.newKeySet();
+	public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
+
+
 	@SubscribeEvent
-	public static void onLivingTick(LivingEvent.LivingTickEvent event) {
-		if (Minecraft.getInstance().level == null || !Minecraft.getInstance().level.isClientSide())
+	public static void onLivingTick(final LivingEvent.LivingTickEvent event) {
+		final var level = Minecraft.getInstance().level;
+		final var entity = event.getEntity();
+
+		if (level == null || !level.isClientSide() || entity == null || ENTITY_BLOCKLIST.contains(entity.getType()))
 			return;
-		if (event.getEntity() == null)
+
+		processLivingVisuals(entity, level);
+	}
+
+	@SubscribeEvent
+	public static void onEntityLeave(final EntityLeaveLevelEvent event) {
+		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
+			EFFECT_CACHE.invalidate(event.getEntity().getUUID());
+		}
+	}
+
+	@SubscribeEvent
+	public static void onPlayerLeave(final ClientPlayerNetworkEvent event) {
+		EFFECT_CACHE.invalidateAll();
+	}
+
+	@SubscribeEvent
+	public static void onRenderLevelStage(final RenderLevelStageEvent event) {
+		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
 			return;
 
-        for (var entity : entityBlocklist) {
-            if (entity.equals(event.getEntity().getType())) {
-                return;
-            }
-        }
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.player == null || ACTIVE_VISUALS.isEmpty())
+			return;
 
-		var level = Minecraft.getInstance().level;
-		var entity = event.getEntity();
-		var map = effectCache.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+		PoseStack poseStack = event.getPoseStack();
+		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-		for (var instance : entity.getActiveEffects()) {
-			var effect = instance.getEffect();
-			var duration = instance.getDuration();
+		var iterator = ACTIVE_VISUALS.iterator();
+		while (iterator.hasNext()) {
+			poseStack.pushPose();
+			boolean hasFinished = animationLoop(event, bufferSource, iterator.next());
+			if (hasFinished)
+				iterator.remove();
+			poseStack.popPose();
+		}
 
-			if (blocklist.contains(effect))
+		bufferSource.endBatch();
+	}
+
+	private static void processLivingVisuals(final LivingEntity entity, final ClientLevel level) {
+		final var map = EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+
+		for (final var instance : entity.getActiveEffects()) {
+			final var effect = instance.getEffect();
+			final var duration = instance.getDuration();
+
+			if (BLOCKLIST.contains(effect))
 				continue;
 
-			if (!map.containsKey(effect)) {
-				triggerEffectVFX(entity, effect);
-				triggerSoundAndParticles(level, entity, effect);
-			} else if (duration > map.getOrDefault(effect, 0) + MEVConfig.CLIENT.refresh_cooldown.get()) {
+			if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
 				triggerEffectVFX(entity, effect);
 				triggerSoundAndParticles(level, entity, effect);
 			}
 
 			map.put(effect, duration);
 		}
-		effectCache.put(entity.getUUID(), map);
-	}
-
-	@SubscribeEvent
-	public static void onEntityLeave(EntityLeaveLevelEvent event) {
-		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
-			effectCache.invalidate(event.getEntity().getUUID());
-		}
-	}
-
-	@SubscribeEvent
-	public static void onPlayerLeave(ClientPlayerNetworkEvent event) {
-		effectCache.invalidateAll();
-	}
-
-	@SubscribeEvent
-	public static void onRenderLevelStage(RenderLevelStageEvent event) {
-		animationDurationMs = MEVConfig.CLIENT.duration.get();
-
-		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
-			return;
-
-		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null || activeVisuals.isEmpty())
-			return;
-
-		PoseStack poseStack = event.getPoseStack();
-		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
-
-		for (MobEffectsVFX.ActiveEffectVisual activeVisual : List.copyOf(activeVisuals)) {
-			poseStack.pushPose();
-			animationLoop(event, bufferSource, activeVisual);
-			poseStack.popPose();
-		}
-		bufferSource.endBatch();
 	}
 
 	/**
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	private static void animationLoop(RenderLevelStageEvent event, MultiBufferSource.BufferSource bufferSource,
-			MobEffectsVFX.ActiveEffectVisual visual) {
+	private static boolean animationLoop(final RenderLevelStageEvent event,
+			final MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
+		MEVColor color = MEVColor.getEffectColor(visual.effect());
 		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
-		float progress = (float) elapsedTime / animationDurationMs;
+		float progress = (float) elapsedTime / MEVConfig.CLIENT.duration.get();
 
 		if (progress >= 1.0F) {
-			activeVisuals.remove(visual);
-			return;
+			return true;
 		}
 
 		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
-		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
+		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, color);
+		return false;
 	}
 
-	private static void triggerSoundAndParticles(ClientLevel level, LivingEntity entity, MobEffect effect) {
+	private static void triggerSoundAndParticles(final ClientLevel level, final LivingEntity entity,
+			final MobEffect effect) {
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
-		Minecraft.getInstance().execute(() -> {
-			Minecraft.getInstance().getSoundManager()
-					.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-							SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
-							level.getRandom().fork(), entity.blockPosition()));
-			spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
-		});
+		Minecraft.getInstance().getSoundManager()
+				.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+						SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
+						level.getRandom().fork(), entity.blockPosition()));
+		spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
 
-	private static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
+	private static void spawnParticles(final ClientLevel level, final MobEffect effect, final LivingEntity entity,
+			final MEVColor color) {
 		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
 			return;
 
@@ -174,7 +171,6 @@ public class ClientSideRenderingEvents {
 	}
 
 	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
-		MEVColor color = MEVColor.getEffectColor(effect);
-		activeVisuals.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis(), color));
+		ACTIVE_VISUALS.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis()));
 	}
 }

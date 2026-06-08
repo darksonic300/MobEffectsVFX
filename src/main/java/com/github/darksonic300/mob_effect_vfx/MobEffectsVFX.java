@@ -26,7 +26,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 
-	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
+	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime) {
 	}
 
 	public MobEffectsVFX() {
@@ -50,12 +50,12 @@ public class MobEffectsVFX {
 
 		@SubscribeEvent
 		public static void onConfigLoad(final ModConfigEvent event) {
-			ClientSideRenderingEvents.blocklist.clear();
-			ClientSideRenderingEvents.blocklist.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+			ClientSideRenderingEvents.BLOCKLIST.clear();
+			ClientSideRenderingEvents.BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(entry))).toList());
 
-            ClientSideRenderingEvents.entityBlocklist.clear();
-			ClientSideRenderingEvents.entityBlocklist.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+            ClientSideRenderingEvents.ENTITY_BLOCKLIST.clear();
+			ClientSideRenderingEvents.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
 					.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
 		}
 	}
