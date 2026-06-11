@@ -60,8 +60,7 @@ public abstract class VisualParticles extends TextureSheetParticle {
 		this.yd *= this.friction;
 	}
 
-    @NotNull
-	@Override
+	@NotNull @Override
 	public ParticleRenderType getRenderType() {
 		return ParticleRenderType.PARTICLE_SHEET_LIT;
 	}

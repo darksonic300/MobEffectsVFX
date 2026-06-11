@@ -23,22 +23,21 @@ public class MobEffectsVFX {
 	public static final String MODID = "mob_effects_vfx";
 
 	public MobEffectsVFX(FMLJavaModLoadingContext context) {
-		if(!FMLLoader.getDist().equals(Dist.CLIENT)) return;
+		if (!FMLLoader.getDist().equals(Dist.CLIENT))
+			return;
 
-        IEventBus modEventBus = context.getModEventBus();
+		IEventBus modEventBus = context.getModEventBus();
 		MEVParticles.register(modEventBus);
 		MinecraftForge.EVENT_BUS.register(this);
-        context.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
+		context.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
 	@Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 	public static class ModClientBusEvents {
 		@SubscribeEvent
 		public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
-            event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(),
-                    RisingParticles.Provider::new);
-            event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(),
-					LoweringParticles.Provider::new);
+			event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(), RisingParticles.Provider::new);
+			event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(), LoweringParticles.Provider::new);
 		}
 
 		@SubscribeEvent
@@ -47,11 +46,12 @@ public class MobEffectsVFX {
 			MobEffectsHandlingEvents.BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(entry))).toList());
 
-            MobEffectsHandlingEvents.ENTITY_BLOCKLIST.clear();
+			MobEffectsHandlingEvents.ENTITY_BLOCKLIST.clear();
 			MobEffectsHandlingEvents.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
 					.map(entry -> ForgeRegistries.ENTITY_TYPES.getValue(ResourceLocation.parse(entry))).toList());
 		}
 	}
 
-    public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime) { }
+	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime) {
+	}
 }

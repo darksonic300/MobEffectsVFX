@@ -18,8 +18,8 @@ public class RisingParticles extends VisualParticles {
 
 	@OnlyIn(Dist.CLIENT)
 	public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
-		public Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level, double x, double y, double z,
-                                       double r, double g, double b) {
+		public Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level, double x,
+				double y, double z, double r, double g, double b) {
 			var particle = new RisingParticles(this.sprite, level, x, y, z);
 			particle.setColor((float) r, (float) g, (float) b);
 			particle.setSize(5, 5);

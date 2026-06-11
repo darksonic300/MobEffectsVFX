@@ -52,7 +52,6 @@ public class MobEffectsHandlingEvents {
 	public static final Set<MobEffect> BLOCKLIST = ConcurrentHashMap.newKeySet();
 	public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
 
-
 	@SubscribeEvent
 	public static void onLivingTick(final LivingEvent.LivingTickEvent event) {
 		final var level = Minecraft.getInstance().level;
@@ -61,11 +60,11 @@ public class MobEffectsHandlingEvents {
 		if (level == null || !level.isClientSide() || entity == null || ENTITY_BLOCKLIST.contains(entity.getType()))
 			return;
 
-        try {
-            processLivingVisuals(entity, level);
-        } catch (Throwable t) {
-            LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
-        }
+		try {
+			processLivingVisuals(entity, level);
+		} catch (Throwable t) {
+			LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
+		}
 	}
 
 	@SubscribeEvent
@@ -92,15 +91,15 @@ public class MobEffectsHandlingEvents {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-        var iterator = ACTIVE_VISUALS.iterator();
-        while (iterator.hasNext()) {
-            var item = iterator.next();
-            poseStack.pushPose();
-            boolean hasFinished = animationLoop(event, bufferSource, item);
-            if (hasFinished)
-                iterator.remove();
-            poseStack.popPose();
-        }
+		var iterator = ACTIVE_VISUALS.iterator();
+		while (iterator.hasNext()) {
+			var item = iterator.next();
+			poseStack.pushPose();
+			boolean hasFinished = animationLoop(event, bufferSource, item);
+			if (hasFinished)
+				iterator.remove();
+			poseStack.popPose();
+		}
 
 		bufferSource.endBatch();
 	}
@@ -169,20 +168,20 @@ public class MobEffectsHandlingEvents {
 
 		var random = level.getRandom().fork();
 
-        try {
-            for (int i = 0; i < 3; i++) {
-                level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-                        entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-                        entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
-            }
-            for (int i = 0; i < 3; i++) {
-                level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-                        entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-                        entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
-            }
-        } catch (NullPointerException e) {
-            LogUtils.getLogger().warn("Failed to add particles for {}", effect);
-        }
+		try {
+			for (int i = 0; i < 3; i++) {
+				level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+						entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+						entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+			}
+			for (int i = 0; i < 3; i++) {
+				level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+						entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+						entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+			}
+		} catch (NullPointerException e) {
+			LogUtils.getLogger().warn("Failed to add particles for {}", effect);
+		}
 	}
 
 	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {

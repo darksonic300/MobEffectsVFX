@@ -16,7 +16,7 @@ public class MEVConfig {
 		public final ForgeConfigSpec.IntValue refresh_cooldown;
 		public final ForgeConfigSpec.ConfigValue<EffectTypes> effect_type;
 		public final ForgeConfigSpec.ConfigValue<List<? extends String>> blocklist;
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> entityBlocklist;
+		public final ForgeConfigSpec.ConfigValue<List<? extends String>> entityBlocklist;
 
 		public final ForgeConfigSpec.ConfigValue<String> soundEffect;
 		public final ForgeConfigSpec.IntValue volume;
@@ -45,17 +45,17 @@ public class MEVConfig {
 					.defineInRange("Cooldown", 150, 0, 5000);
 			builder.pop();
 
-            builder.push("General");
+			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")
-					.translation("config." + MobEffectsVFX.MODID + ".blacklist")
-					.defineListAllowEmpty("Blocklist", List.of(), obj -> ResourceLocation.isValidResourceLocation((String) obj));
+					.translation("config." + MobEffectsVFX.MODID + ".blacklist").defineListAllowEmpty("Blocklist",
+							List.of(), obj -> ResourceLocation.isValidResourceLocation((String) obj));
 			builder.pop();
 
-            builder.push("General");
-            entityBlocklist = builder.comment("A list of entities you want to exclude.")
-                    .translation("config." + MobEffectsVFX.MODID + ".entityBlocklist")
-                    .defineListAllowEmpty("Entity Blocklist", List.of(), obj -> ResourceLocation.isValidPath((String) obj));
-            builder.pop();
+			builder.push("General");
+			entityBlocklist = builder.comment("A list of entities you want to exclude.")
+					.translation("config." + MobEffectsVFX.MODID + ".entityBlocklist").defineListAllowEmpty(
+							"Entity Blocklist", List.of(), obj -> ResourceLocation.isValidPath((String) obj));
+			builder.pop();
 
 			builder.push("Sound");
 			soundEffect = builder.comment("Change the sound used when an effect is applied.")
