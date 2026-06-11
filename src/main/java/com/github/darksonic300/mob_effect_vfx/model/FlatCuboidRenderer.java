@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
-public class FlatCuboidRenderer extends CuboidRenderer {
+public final class FlatCuboidRenderer extends CuboidRenderer {
 
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,

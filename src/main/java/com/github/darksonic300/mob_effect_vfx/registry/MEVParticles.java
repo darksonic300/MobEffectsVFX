@@ -11,7 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 @OnlyIn(Dist.CLIENT)
-public class MEVParticles {
+public record MEVParticles() {
 	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister
 			.create(ForgeRegistries.PARTICLE_TYPES, MobEffectsVFX.MODID);
 

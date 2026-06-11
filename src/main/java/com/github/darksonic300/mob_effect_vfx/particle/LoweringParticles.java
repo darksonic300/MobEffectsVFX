@@ -7,6 +7,7 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public class LoweringParticles extends VisualParticles {
@@ -16,15 +17,9 @@ public class LoweringParticles extends VisualParticles {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static class Provider implements ParticleProvider<SimpleParticleType> {
-		SpriteSet sprite;
-
-		public Provider(SpriteSet sprite) {
-			this.sprite = sprite;
-		}
-
-		public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z,
-				double r, double g, double b) {
+	public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
+		public Particle createParticle(@NotNull SimpleParticleType particleType, @NotNull ClientLevel level, double x, double y, double z,
+                                       double r, double g, double b) {
 			var particle = new LoweringParticles(this.sprite, level, x, y, z);
 			particle.setColor((float) r, (float) g, (float) b);
 			particle.setSize(5, 5);

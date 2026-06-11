@@ -8,13 +8,8 @@ import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
 import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.mojang.blaze3d.vertex.*;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.logging.LogUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -37,11 +32,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+
 @Mod.EventBusSubscriber(modid = MobEffectsVFX.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class ClientSideRenderingEvents {
+public class MobEffectsHandlingEvents {
 	private static final float PARTICLE_RANGE = 0.6F;
 
-	private static final List<MobEffectsVFX.ActiveEffectVisual> ACTIVE_VISUALS = new CopyOnWriteArrayList<>();
+	private static final Queue<MobEffectsVFX.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
 	private static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
 			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
@@ -57,7 +61,11 @@ public class ClientSideRenderingEvents {
 		if (level == null || !level.isClientSide() || entity == null || ENTITY_BLOCKLIST.contains(entity.getType()))
 			return;
 
-		processLivingVisuals(entity, level);
+        try {
+            processLivingVisuals(entity, level);
+        } catch (Throwable t) {
+            LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
+        }
 	}
 
 	@SubscribeEvent
@@ -84,14 +92,15 @@ public class ClientSideRenderingEvents {
 		PoseStack poseStack = event.getPoseStack();
 		MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
 
-		var iterator = ACTIVE_VISUALS.iterator();
-		while (iterator.hasNext()) {
-			poseStack.pushPose();
-			boolean hasFinished = animationLoop(event, bufferSource, iterator.next());
-			if (hasFinished)
-				iterator.remove();
-			poseStack.popPose();
-		}
+        var iterator = ACTIVE_VISUALS.iterator();
+        while (iterator.hasNext()) {
+            var item = iterator.next();
+            poseStack.pushPose();
+            boolean hasFinished = animationLoop(event, bufferSource, item);
+            if (hasFinished)
+                iterator.remove();
+            poseStack.popPose();
+        }
 
 		bufferSource.endBatch();
 	}
@@ -138,6 +147,7 @@ public class ClientSideRenderingEvents {
 
 	private static void triggerSoundAndParticles(final ClientLevel level, final LivingEntity entity,
 			final MobEffect effect) {
+
 		SoundEvent sound = ForgeRegistries.SOUND_EVENTS
 				.getValue(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
@@ -158,16 +168,21 @@ public class ClientSideRenderingEvents {
 				: MEVParticles.LOWERING_PARTICLES.get();
 
 		var random = level.getRandom().fork();
-		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-					entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
-		}
-		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
-					entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
-					entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
-		}
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                level.addParticle(particle, entity.getX() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+                        entity.getY() + 1 + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+                        entity.getZ() + MthUtils.fRand(random, 0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+            }
+            for (int i = 0; i < 3; i++) {
+                level.addParticle(particle, entity.getX() + MthUtils.fRand(random, 0f, PARTICLE_RANGE),
+                        entity.getY() + 1 + MthUtils.fRand(random, -PARTICLE_RANGE, 0f),
+                        entity.getZ() + MthUtils.fRand(random, -PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+            }
+        } catch (NullPointerException e) {
+            LogUtils.getLogger().warn("Failed to add particles for {}", effect);
+        }
 	}
 
 	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {

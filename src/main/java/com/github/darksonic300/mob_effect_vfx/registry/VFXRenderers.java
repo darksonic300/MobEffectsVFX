@@ -9,7 +9,7 @@ import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VFXRenderers {
+public record VFXRenderers() {
 	public static final Map<EffectTypes, CuboidRenderer> CUBOID_REGISTRY = new HashMap<>();
 
 	static {

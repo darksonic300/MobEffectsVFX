@@ -7,9 +7,9 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class VisualParticles extends TextureSheetParticle {
@@ -60,6 +60,7 @@ public abstract class VisualParticles extends TextureSheetParticle {
 		this.yd *= this.friction;
 	}
 
+    @NotNull
 	@Override
 	public ParticleRenderType getRenderType() {
 		return ParticleRenderType.PARTICLE_SHEET_LIT;
