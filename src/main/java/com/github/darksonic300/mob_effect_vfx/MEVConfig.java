@@ -1,12 +1,13 @@
 package com.github.darksonic300.mob_effect_vfx;
 
 import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
-import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
-public class MEVConfig {
+import java.util.List;
+
+public record MEVConfig() {
 	public static class Client {
 		public final ModConfigSpec.IntValue duration;
 		public final ModConfigSpec.DoubleValue opacity;
@@ -40,13 +41,6 @@ public class MEVConfig {
 					.translation("config." + MobEffectsVFX.MODID + ".refresh_cooldown")
 					.defineInRange("Cooldown", 150, 0, 5000);
 			builder.pop();
-
-			/*
-			 * builder.push("Rendering"); action =
-			 * builder.comment("Option to choose specific actions to trigger effects.")
-			 * .translation("config." + MobEffectsVFX.MODID + ".activation")
-			 * .defineEnum("Activation", ActivationTriggers.ALL); builder.pop();
-			 */
 
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")

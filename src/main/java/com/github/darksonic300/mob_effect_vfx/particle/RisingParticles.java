@@ -10,20 +10,14 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RisingParticles extends VisualParticles {
-	protected RisingParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
+public final class RisingParticles extends VisualParticles {
+	private RisingParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
 		super(sprite, level, x, y, z, target);
 		this.gravity = -0.5f;
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static class Provider implements ParticleProvider<SimpleParticleType> {
-		SpriteSet sprite;
-
-		public Provider(SpriteSet sprite) {
-			this.sprite = sprite;
-		}
-
+	public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
 		public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z,
 				double r, double g, double b) {
 			LivingEntity target = null;

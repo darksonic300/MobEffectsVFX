@@ -11,7 +11,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @OnlyIn(Dist.CLIENT)
-public class MEVParticles {
+public record MEVParticles() {
 	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister
 			.create(BuiltInRegistries.PARTICLE_TYPE, MobEffectsVFX.MODID);
 

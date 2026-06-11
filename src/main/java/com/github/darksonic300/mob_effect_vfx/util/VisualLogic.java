@@ -14,55 +14,50 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
-import static com.github.darksonic300.mob_effect_vfx.ClientSideRenderingEvents.activeVisuals;
+import static com.github.darksonic300.mob_effect_vfx.MobEffectsHandlingEvents.ACTIVE_VISUALS;
 
 public final class VisualLogic {
 	private static final float PARTICLE_RANGE = 0.6F;
 
-	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime, MEVColor color) {
+	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime) {
 	}
 
 	/**
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	public static void animationLoop(RenderLevelStageEvent event, MultiBufferSource.BufferSource bufferSource,
-			ActiveEffectVisual visual) {
+	public static boolean animationLoop(final RenderLevelStageEvent event,
+			final MultiBufferSource.BufferSource bufferSource, ActiveEffectVisual visual) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
+		MEVColor color = MEVColor.getEffectColor(visual.effect());
 		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
 		float progress = (float) elapsedTime / MEVConfig.CLIENT.duration.get();
 
 		if (progress >= 1.0F) {
-			activeVisuals.remove(visual);
-			return;
+			return true;
 		}
 
 		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
-		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, visual.color());
+		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, color);
+		return false;
 	}
 
-	public static void triggerSoundAndParticles(LivingEntity entity, MobEffect effect) {
+	public static void triggerSoundAndParticles(final ClientLevel level, final LivingEntity entity,
+			final MobEffect effect) {
 		SoundEvent sound = BuiltInRegistries.SOUND_EVENT
 				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
-		Minecraft.getInstance().execute(() -> {
-			var clientLevel = Minecraft.getInstance().level;
-			if (clientLevel == null)
-				return;
-
-			Minecraft.getInstance().getSoundManager()
-					.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-							SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
-							RandomSource.create(), entity.blockPosition()));
-			spawnParticles(clientLevel, effect, entity, MEVColor.getEffectColor(effect));
-		});
+		Minecraft.getInstance().getSoundManager()
+				.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
+						SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
+						level.getRandom().fork(), entity.blockPosition()));
+		spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
 
 	public static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
@@ -86,7 +81,6 @@ public final class VisualLogic {
 	}
 
 	public static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
-		MEVColor color = MEVColor.getEffectColor(effect);
-		activeVisuals.add(new ActiveEffectVisual(source, effect, Util.getMillis(), color));
+		ACTIVE_VISUALS.add(new ActiveEffectVisual(source, effect, Util.getMillis()));
 	}
 }
