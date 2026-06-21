@@ -1,6 +1,6 @@
-package com.github.darksonic300.mob_effect_vfx.util;
+package com.github.darksonic300.mobeffectsvfx.util;
 
-import com.github.darksonic300.mob_effect_vfx.MEVConfig;
+import com.github.darksonic300.mobeffectsvfx.MEVConfig;
 import net.minecraft.world.effect.MobEffect;
 
 public record MEVColor(float r, float g, float b, float a) {

@@ -1,8 +1,8 @@
-package com.github.darksonic300.mob_effect_vfx;
+package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
-import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
-import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
+import com.github.darksonic300.mobeffectsvfx.particle.LoweringParticles;
+import com.github.darksonic300.mobeffectsvfx.particle.RisingParticles;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 
 @Mod(value = MobEffectsVFX.MODID, dist = Dist.CLIENT)
 public class MobEffectsVFX {
-	public static final String MODID = "mob_effects_vfx";
+	public static final String MODID = "mobeffectsvfx";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public MobEffectsVFX(IEventBus bus, ModContainer modContainer) {

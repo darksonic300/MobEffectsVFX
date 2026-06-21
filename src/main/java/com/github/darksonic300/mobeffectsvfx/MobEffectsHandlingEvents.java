@@ -1,6 +1,6 @@
-package com.github.darksonic300.mob_effect_vfx;
+package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mob_effect_vfx.util.VisualLogic;
+import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -37,21 +37,21 @@ public class MobEffectsHandlingEvents {
 	public static final Set<MobEffect> BLOCKLIST = ConcurrentHashMap.newKeySet();
 	public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
 
-	@SubscribeEvent
-	public static void onLivingTick(final EntityTickEvent.Pre event) {
-		final var level = Minecraft.getInstance().level;
-		final var entity = event.getEntity();
+    @SubscribeEvent
+    public static void onLivingTick(final EntityTickEvent.Pre event) {
+        final var level = Minecraft.getInstance().level;
+        final var entity = event.getEntity();
 
-		if (level == null || !level.isClientSide() || !entity.getClass().isInstance(LivingEntity.class)
-				|| ENTITY_BLOCKLIST.contains(entity.getType()))
-			return;
+        if (level == null || !level.isClientSide() || !entity.getClass().isInstance(LivingEntity.class)
+                || ENTITY_BLOCKLIST.contains(entity.getType()))
+            return;
 
-		try {
-			processLivingVisuals((LivingEntity) entity, level);
-		} catch (Throwable t) {
-			LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
-		}
-	}
+        try {
+            processLivingVisuals((LivingEntity) entity, level);
+        } catch (Throwable t) {
+            LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
+        }
+    }
 
 	@SubscribeEvent
 	public static void onEntityLeave(final EntityLeaveLevelEvent event) {
@@ -61,7 +61,7 @@ public class MobEffectsHandlingEvents {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerLeave(final ClientPlayerNetworkEvent event) {
+	public static void onPlayerLeave(final ClientPlayerNetworkEvent.LoggingOut event) {
 		EFFECT_CACHE.invalidateAll();
 	}
 
@@ -90,7 +90,7 @@ public class MobEffectsHandlingEvents {
 		bufferSource.endBatch();
 	}
 
-	private static void processLivingVisuals(final LivingEntity entity, final ClientLevel level) {
+	public static void processLivingVisuals(final LivingEntity entity, final ClientLevel level) {
 		final var map = EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
 		for (final var instance : entity.getActiveEffects()) {
@@ -98,7 +98,7 @@ public class MobEffectsHandlingEvents {
 			final var duration = instance.getDuration();
 
 			if (BLOCKLIST.contains(effect))
-				continue;
+				return;
 
 			if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
 				VisualLogic.triggerEffectVFX(entity, effect);

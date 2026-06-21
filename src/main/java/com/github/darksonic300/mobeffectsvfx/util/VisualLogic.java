@@ -1,9 +1,9 @@
-package com.github.darksonic300.mob_effect_vfx.util;
+package com.github.darksonic300.mobeffectsvfx.util;
 
-import com.github.darksonic300.mob_effect_vfx.MEVConfig;
-import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
-import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
-import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
+import com.github.darksonic300.mobeffectsvfx.MEVConfig;
+import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
+import com.github.darksonic300.mobeffectsvfx.registry.VFXRenderers;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,7 +19,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
-import static com.github.darksonic300.mob_effect_vfx.MobEffectsHandlingEvents.ACTIVE_VISUALS;
+import static com.github.darksonic300.mobeffectsvfx.MobEffectsHandlingEvents.ACTIVE_VISUALS;
 
 public final class VisualLogic {
 	private static final float PARTICLE_RANGE = 0.6F;

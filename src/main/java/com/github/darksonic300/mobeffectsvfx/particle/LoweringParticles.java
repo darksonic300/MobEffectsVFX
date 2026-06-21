@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.particle;
+package com.github.darksonic300.mobeffectsvfx.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
@@ -10,10 +10,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public final class RisingParticles extends VisualParticles {
-	private RisingParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
+public final class LoweringParticles extends VisualParticles {
+	private LoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
 		super(sprite, level, x, y, z, target);
-		this.gravity = -0.5f;
+		this.gravity = 0.5f;
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -29,7 +29,7 @@ public final class RisingParticles extends VisualParticles {
 						new net.minecraft.world.phys.AABB(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1));
 			}
 
-			var particle = new RisingParticles(this.sprite, level, x, y, z, target);
+			var particle = new LoweringParticles(this.sprite, level, x, y, z, target);
 			particle.setColor((float) r, (float) g, (float) b);
 			particle.setSize(5, 5);
 			return particle;

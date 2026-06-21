@@ -1,6 +1,6 @@
-package com.github.darksonic300.mob_effect_vfx.model;
+package com.github.darksonic300.mobeffectsvfx.model;
 
-import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
+import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.util.Mth;

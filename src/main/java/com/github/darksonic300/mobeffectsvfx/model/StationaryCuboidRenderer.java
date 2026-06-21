@@ -1,7 +1,7 @@
-package com.github.darksonic300.mob_effect_vfx.model;
+package com.github.darksonic300.mobeffectsvfx.model;
 
-import com.github.darksonic300.mob_effect_vfx.registry.MEVRenderTypes;
-import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
+import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;

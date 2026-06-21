@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.util;
+package com.github.darksonic300.mobeffectsvfx.util;
 
 import java.util.concurrent.ThreadLocalRandom;
 

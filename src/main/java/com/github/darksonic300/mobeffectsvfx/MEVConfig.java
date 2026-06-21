@@ -1,6 +1,6 @@
-package com.github.darksonic300.mob_effect_vfx;
+package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
+import com.github.darksonic300.mobeffectsvfx.util.EffectTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;

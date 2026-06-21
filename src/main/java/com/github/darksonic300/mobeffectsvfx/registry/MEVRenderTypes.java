@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.registry;
+package com.github.darksonic300.mobeffectsvfx.registry;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
