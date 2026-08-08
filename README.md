@@ -2,7 +2,7 @@
 
 A Client-side Minecraft mod that adds simple 3D VFX on effect application!
 
-<img src="src/main/resources/mob_effects_vfx.png" alt="icon" width="300"/>
+<img src="src/main/resources/mobeffectsvfx.png" alt="icon" width="300"/>
 
 
 ## Links and Socials
