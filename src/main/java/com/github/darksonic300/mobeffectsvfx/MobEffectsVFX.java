@@ -45,12 +45,12 @@ public class MobEffectsVFX {
 		@SubscribeEvent
 		public static void onConfigLoad(final ModConfigEvent event) {
 			MobEffectsVFX.LOGGER.info("Loading Blocklists config");
-			MobEffectsHandlingEvents.BLOCKLIST.clear();
-			MobEffectsHandlingEvents.BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+			MEVDataManager.EFFECT_BLOCKLIST.clear();
+			MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
 					.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
 
-			MobEffectsHandlingEvents.ENTITY_BLOCKLIST.clear();
-			MobEffectsHandlingEvents.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+			MEVDataManager.ENTITY_BLOCKLIST.clear();
+			MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
 					.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
 		}
 	}

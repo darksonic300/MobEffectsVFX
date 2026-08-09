@@ -1,6 +1,7 @@
 package com.github.darksonic300.mobeffectsvfx.util;
 
 import com.github.darksonic300.mobeffectsvfx.MEVConfig;
+import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.VFXRenderers;
@@ -18,8 +19,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-
-import static com.github.darksonic300.mobeffectsvfx.MobEffectsHandlingEvents.ACTIVE_VISUALS;
 
 public final class VisualLogic {
 	private static final float PARTICLE_RANGE = 0.6F;
@@ -81,6 +80,6 @@ public final class VisualLogic {
 	}
 
 	public static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
-		ACTIVE_VISUALS.add(new ActiveEffectVisual(source, effect, Util.getMillis()));
+		MEVDataManager.ACTIVE_VISUALS.add(new ActiveEffectVisual(source, effect, Util.getMillis()));
 	}
 }

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.github.darksonic300.mobeffectsvfx.mixin",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "mobeffectsvfx.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "ClientLivingEventInjector"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
