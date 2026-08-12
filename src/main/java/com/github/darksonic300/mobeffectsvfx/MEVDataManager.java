@@ -22,10 +22,20 @@ public final class MEVDataManager {
     public static final Set<MobEffect> EFFECT_BLOCKLIST = ConcurrentHashMap.newKeySet();
     public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
 
+    private static boolean isServerSide;
+
     private MEVDataManager() {}
 
     public static void clearAllState() {
         EFFECT_CACHE.invalidateAll();
         ACTIVE_VISUALS.clear();
+    }
+
+    public static boolean isServerSide() {
+        return isServerSide;
+    }
+
+    public static void setIsServerSide(boolean isServerSide) {
+        MEVDataManager.isServerSide = isServerSide;
     }
 }
