@@ -8,7 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 
 public record MEVConfig() {
-	public static class Client {
+	public static class Common {
 		public final ModConfigSpec.IntValue duration;
 		public final ModConfigSpec.DoubleValue opacity;
 		public final ModConfigSpec.IntValue refresh_cooldown;
@@ -18,7 +18,7 @@ public record MEVConfig() {
 		public final ModConfigSpec.ConfigValue<String> soundEffect;
 		public final ModConfigSpec.IntValue volume;
 
-		public Client(ModConfigSpec.Builder builder) {
+		public Common(ModConfigSpec.Builder builder) {
 			builder.push("Rendering");
 			duration = builder.comment("The duration in MS for the effects.")
 					.translation("config." + MobEffectsVFX.MODID + ".duration")
@@ -67,8 +67,8 @@ public record MEVConfig() {
 		}
 	}
 
-	static final Pair<Client, ModConfigSpec> clientSpecPair = new ModConfigSpec.Builder().configure(Client::new);
+	static final Pair<Common, ModConfigSpec> commonSpecPair = new ModConfigSpec.Builder().configure(Common::new);
 
-	public static final ModConfigSpec CLIENT_SPEC = clientSpecPair.getRight();
-	public static final Client CLIENT = clientSpecPair.getLeft();
+	public static final ModConfigSpec COMMON_SPEC = commonSpecPair.getRight();
+	public static final Common COMMON = commonSpecPair.getLeft();
 }

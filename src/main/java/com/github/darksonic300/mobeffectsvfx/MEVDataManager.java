@@ -29,6 +29,7 @@ public final class MEVDataManager {
     public static void clearAllState() {
         EFFECT_CACHE.invalidateAll();
         ACTIVE_VISUALS.clear();
+        isServerSide = false;
     }
 
     public static boolean isServerSide() {

@@ -36,13 +36,13 @@ public final class VisualLogic {
 		MEVColor color = MEVColor.getEffectColor(visual.effect());
 		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
-		float progress = (float) elapsedTime / MEVConfig.CLIENT.duration.get();
+		float progress = (float) elapsedTime / MEVConfig.COMMON.duration.get();
 
 		if (progress >= 1.0F) {
 			return true;
 		}
 
-		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
+		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.COMMON.effect_type.get());
 		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, color);
 		return false;
 	}
@@ -50,17 +50,17 @@ public final class VisualLogic {
 	public static void triggerSoundAndParticles(final ClientLevel level, final LivingEntity entity,
 			final MobEffect effect) {
 		SoundEvent sound = BuiltInRegistries.SOUND_EVENT
-				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
+				.get(ResourceLocation.tryParse(MEVConfig.COMMON.soundEffect.get()));
 
 		Minecraft.getInstance().getSoundManager()
 				.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,
-						SoundSource.AMBIENT, (float) MEVConfig.CLIENT.volume.get() / 100f, 1.0f,
+						SoundSource.AMBIENT, (float) MEVConfig.COMMON.volume.get() / 100f, 1.0f,
 						level.getRandom().fork(), entity.blockPosition()));
 		spawnParticles(level, effect, entity, MEVColor.getEffectColor(effect));
 	}
 
 	public static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
-		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
+		if (!MEVConfig.COMMON.effect_type.get().equals(EffectTypes.RISING))
 			return;
 
 		var particle = effect.isBeneficial()

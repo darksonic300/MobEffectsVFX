@@ -3,15 +3,13 @@ package com.github.darksonic300.mobeffectsvfx;
 import com.github.darksonic300.mobeffectsvfx.particle.LoweringParticles;
 import com.github.darksonic300.mobeffectsvfx.particle.RisingParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
+import com.github.darksonic300.mobeffectsvfx.util.CommonVisualProcessor;
 import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,9 +20,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-
-import java.util.HashMap;
-import java.util.Map;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class MEVClientEvents {
@@ -44,20 +40,22 @@ public class MEVClientEvents {
     public static void onConfigLoad(final ModConfigEvent event) {
         MobEffectsVFX.LOGGER.info("Loading Blocklists config");
         MEVDataManager.EFFECT_BLOCKLIST.clear();
-        MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+        MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.COMMON.blocklist.get().stream()
                 .map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
 
         MEVDataManager.ENTITY_BLOCKLIST.clear();
-        MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+        MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.COMMON.entityBlocklist.get().stream()
                 .map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
     }
 
 
     // <-- ENTITY EVENTS -->
 
-    /*
+
     @SubscribeEvent
     public static void clientEffectTrigger(final EntityTickEvent.Pre event) {
+        if (MEVDataManager.isServerSide()) return;
+
         final var level = Minecraft.getInstance().level;
         final var entity = event.getEntity();
 
@@ -66,11 +64,11 @@ public class MEVClientEvents {
             return;
 
         try {
-            processVisuals((LivingEntity) entity, level);
+            CommonVisualProcessor.processVisuals(entity.getId());
         } catch (Throwable t) {
-            LogUtils.getLogger().warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
+            MobEffectsVFX.LOGGER.warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
         }
-    }*/
+    }
 
 	@SubscribeEvent
 	public static void onEntityLeave(final EntityLeaveLevelEvent event) {
@@ -110,35 +108,4 @@ public class MEVClientEvents {
 
 		bufferSource.endBatch();
 	}
-
-
-    public static void processVisuals(final LivingEntity entity, final ClientLevel level) {
-        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
-
-        for (final var instance : entity.getActiveEffects()) {
-            executeInstance(entity, level, instance, map);
-        }
-    }
-
-    public static void processVisual(final LivingEntity entity, final ClientLevel level, MobEffectInstance instance) {
-        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
-
-        executeInstance(entity, level, instance, map);
-    }
-
-    static void executeInstance(LivingEntity entity, ClientLevel level, MobEffectInstance instance, Map<MobEffect, Integer> map) {
-        final var effect = instance.getEffect().value();
-        final var duration = instance.getDuration();
-
-        if (MEVDataManager.EFFECT_BLOCKLIST.contains(effect))
-            return;
-
-        if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
-            VisualLogic.triggerEffectVFX(entity, effect);
-            VisualLogic.triggerSoundAndParticles(level, entity, effect);
-        }
-
-        map.put(effect, duration);
-    }
-
 }
