@@ -3,7 +3,8 @@ plugins {
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141'
     id 'idea'
-    id("com.diffplug.spotless") version "8.2.1"
+    id 'com.diffplug.spotless' version '8.2.1'
+    id "me.modmuss50.mod-publish-plugin" version "2.2.0"
 }
 
 
@@ -139,3 +140,26 @@ idea {
         downloadJavadoc = true
     }
 }
+
+/*
+publishMods {
+    file = jar.archiveFile
+    changelog = "Changelog"
+    type = STABLE
+    modLoaders.add("neoforge")
+
+    curseforge {
+        accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+        projectId = ${curseforge_project_id}
+        minecraftVersions.add(${minecraft_version})
+        client = true
+        server = true
+    }
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_API_KEY")
+        projectId = ${modrinth_project_id}
+        minecraftVersions.add(${minecraft_version})
+    }
+}
+ */
