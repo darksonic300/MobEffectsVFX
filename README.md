@@ -1,6 +1,6 @@
 # MobEffectsVFX
 
-A Client-side Minecraft mod that adds simple 3D VFX on effect application!
+A client-side mod that adds simple 3D VFX on effect gain! (Server-side installation is still recommended for better functionality)
 
 <img src="src/main/resources/mob_effects_vfx.png" alt="icon" width="300"/>
 
@@ -21,14 +21,16 @@ A Client-side Minecraft mod that adds simple 3D VFX on effect application!
 
 ### Description
 
-**MobEffectsVFX** is a client-side mod that adds new visuals when a player gains an effect.
+**MobEffectsVFX** is a mod that adds new visuals when a player gains an effect.
 
 In Fantasy-RPG fashion, the player will be surrounded by a fast moving aura when an effect is applied to them. Depending on the nature and color of the applied effect, the aura will change its behaviour (ex. A beneficial effect will have an upward moving animation, while a harmful one will move downwards).
+
+While usable exclusively *client-side*, it is recommended to install it on the *server* for better functionality. 
 
 The mod currently supports 3 VFX options: **Rising**, **Stationary** and **Flat**.
 Other independant configurability options include: **VFX Opacity** and **Duration**.
 
-*Note: the mod it's still in early stage, so there might be bugs and issues related to it.*  
+*Note 1: the mod it's still in early stage, so there might be bugs and issues related to it.*  
 
 ### Visual Effects Showcase
 
@@ -48,8 +50,8 @@ Other independant configurability options include: **VFX Opacity** and **Duratio
 |   NeoForge   |    ❌   |    ✅   |       ❌       |   〰️   |         ❌        |    〰️   |
 | Fabric/Quilt |    ❌   |    ❌   |       ❌       |    ❌   |         ❌        |    ❌    |
 
-*Note: Pull Requests with non-planned versions are accepted outside of Fabric/Quilt, but LTS support 
-won't likely be available unless the authors themselves maintain it.*
+*Note 2: Pull Requests with non-planned versions are accepted outside of Fabric/Quilt, but LTS support 
+won't likely be available unless the contributors themselves maintain it.*
 
 # Credits
 
