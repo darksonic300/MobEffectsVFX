@@ -42,7 +42,6 @@ public class MEVCommonEvents {
                 MobEffectUpdatePayload.STREAM_CODEC,
                 (payload, context) ->
                     context.enqueueWork(() -> {
-                        MobEffectsVFX.LOGGER.info("Effect Payload update sent");
                         CommonVisualProcessor.processVisual(payload.entityId(), payload.instance());
                     })
         );
@@ -63,12 +62,8 @@ public class MEVCommonEvents {
         if (MEVDataManager.ENTITY_BLOCKLIST.contains(entity.getType()))
             return;
 
-        try {
-            PacketDistributor.sendToAllPlayers(new MobEffectUpdatePayload(
-                    entity.getId(), event.getEffectInstance()
-            ));
-        } catch (Exception t) {
-            MobEffectsVFX.LOGGER.warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
-        }
+        PacketDistributor.sendToAllPlayers(new MobEffectUpdatePayload(
+                entity.getId(), event.getEffectInstance()
+        ));
     }
 }

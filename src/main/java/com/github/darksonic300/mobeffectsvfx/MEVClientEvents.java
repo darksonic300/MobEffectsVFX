@@ -8,8 +8,14 @@ import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.Holder;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,12 +28,16 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
+import java.util.HashSet;
+import java.util.List;
+
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class MEVClientEvents {
 
     @SubscribeEvent
     public static void onModInit(final FMLClientSetupEvent event) {
         MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log.");
+        MEVDataManager.initColorMap();
     }
 
     @SubscribeEvent
@@ -50,25 +60,6 @@ public class MEVClientEvents {
 
 
     // <-- ENTITY EVENTS -->
-
-
-    @SubscribeEvent
-    public static void clientEffectTrigger(final EntityTickEvent.Pre event) {
-        if (MEVDataManager.isServerSide()) return;
-
-        final var level = Minecraft.getInstance().level;
-        final var entity = event.getEntity();
-
-        if (level == null || !level.isClientSide() || !entity.getClass().isInstance(LivingEntity.class)
-                || MEVDataManager.ENTITY_BLOCKLIST.contains(entity.getType()))
-            return;
-
-        try {
-            CommonVisualProcessor.processVisuals(entity.getId());
-        } catch (Throwable t) {
-            MobEffectsVFX.LOGGER.warn("MobEffectsVFX threw an exception: {}", t.fillInStackTrace());
-        }
-    }
 
 	@SubscribeEvent
 	public static void onEntityLeave(final EntityLeaveLevelEvent event) {

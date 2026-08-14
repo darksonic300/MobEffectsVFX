@@ -8,11 +8,12 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommonVisualProcessor {
-    public static void processVisuals(final int entityId) {
+    public static void processVisual(final int entityId) {
         final var level = Minecraft.getInstance().level;
         final var entity = (LivingEntity) level.getEntity(entityId);
         final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
@@ -28,6 +29,16 @@ public class CommonVisualProcessor {
         final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
         executeInstance(entity, level, instance, map);
+    }
+
+    public static void processVisual(final int entityId, Collection<MobEffectInstance> instanceList) {
+        final var level = Minecraft.getInstance().level;
+        final var entity = (LivingEntity) level.getEntity(entityId);
+        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+
+        for (final var instance : instanceList) {
+            executeInstance(entity, level, instance, map);
+        }
     }
 
     static void executeInstance(LivingEntity entity, ClientLevel level, MobEffectInstance instance, Map<MobEffect, Integer> map) {
