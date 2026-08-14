@@ -8,9 +8,9 @@ version="${mod_version}"
 displayName="${mod_name}"
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
-logoFile="mobeffectsvfx.png"
-#credits="" #optional
-#authors=""
+logoFile="${mod_id}.png"
+credits="Aethuys for the mod icon"
+authors="darksonic300"
 
 description='''
 ${mod_description}
