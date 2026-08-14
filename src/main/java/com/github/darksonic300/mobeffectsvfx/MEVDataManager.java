@@ -17,36 +17,37 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 public final class MEVDataManager {
-    public static final Map<Integer, MobEffect> COLOR_TO_EFFECT = new HashMap<>();
+	public static final Map<Integer, MobEffect> COLOR_TO_EFFECT = new HashMap<>();
 
-    public static final Queue<VisualLogic.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
-    public static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
-            .expireAfterAccess(1, TimeUnit.MINUTES).build();
+	public static final Queue<VisualLogic.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
+	public static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
+			.expireAfterAccess(1, TimeUnit.MINUTES).build();
 
-    public static final Set<MobEffect> EFFECT_BLOCKLIST = ConcurrentHashMap.newKeySet();
-    public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
+	public static final Set<MobEffect> EFFECT_BLOCKLIST = ConcurrentHashMap.newKeySet();
+	public static final Set<EntityType<?>> ENTITY_BLOCKLIST = ConcurrentHashMap.newKeySet();
 
-    private static boolean isServerSide;
+	private static boolean isServerSide;
 
-    private MEVDataManager() {}
+	private MEVDataManager() {
+	}
 
-    public static void initColorMap() {
-        for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
-            COLOR_TO_EFFECT.put(effect.getColor(), effect);
-        }
-    }
+	public static void initColorMap() {
+		for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+			COLOR_TO_EFFECT.put(effect.getColor(), effect);
+		}
+	}
 
-    public static void clearAllState() {
-        EFFECT_CACHE.invalidateAll();
-        ACTIVE_VISUALS.clear();
-        isServerSide = false;
-    }
+	public static void clearAllState() {
+		EFFECT_CACHE.invalidateAll();
+		ACTIVE_VISUALS.clear();
+		isServerSide = false;
+	}
 
-    public static boolean isServerSide() {
-        return isServerSide;
-    }
+	public static boolean isServerSide() {
+		return isServerSide;
+	}
 
-    public static void setIsServerSide(boolean isServerSide) {
-        MEVDataManager.isServerSide = isServerSide;
-    }
+	public static void setIsServerSide(boolean isServerSide) {
+		MEVDataManager.isServerSide = isServerSide;
+	}
 }

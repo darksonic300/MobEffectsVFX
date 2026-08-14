@@ -8,18 +8,20 @@ import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 
 import java.util.function.Consumer;
 
-public record PresenceConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
-    public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(MobEffectsVFX.getResource("presence_configuration_task"));
+public record PresenceConfigurationTask(
+		ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
+	public static final ConfigurationTask.Type TYPE = new ConfigurationTask.Type(
+			MobEffectsVFX.getResource("presence_configuration_task"));
 
-    @Override
-    public void run(final Consumer<CustomPacketPayload> consumer) {
-        final var payload = new ServerPresencePayload();
-        consumer.accept(payload);
-        this.listener.finishCurrentTask(this.type());
-    }
+	@Override
+	public void run(final Consumer<CustomPacketPayload> consumer) {
+		final var payload = new ServerPresencePayload();
+		consumer.accept(payload);
+		this.listener.finishCurrentTask(this.type());
+	}
 
-    @Override
-    public Type type() {
-        return TYPE;
-    }
+	@Override
+	public Type type() {
+		return TYPE;
+	}
 }

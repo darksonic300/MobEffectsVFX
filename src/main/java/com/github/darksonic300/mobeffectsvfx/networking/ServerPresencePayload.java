@@ -6,11 +6,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record ServerPresencePayload() implements CustomPacketPayload {
-    public static final Type<ServerPresencePayload> TYPE = new Type<>(MobEffectsVFX.getResource("server_presence"));
-    public static final StreamCodec<ByteBuf, ServerPresencePayload> STREAM_CODEC = StreamCodec.unit(new ServerPresencePayload());
+	public static final Type<ServerPresencePayload> TYPE = new Type<>(MobEffectsVFX.getResource("server_presence"));
+	public static final StreamCodec<ByteBuf, ServerPresencePayload> STREAM_CODEC = StreamCodec
+			.unit(new ServerPresencePayload());
 
-    @Override
-    public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
-    }
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
 }

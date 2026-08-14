@@ -17,8 +17,7 @@ public class MobEffectsVFX {
 		modContainer.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
-    public static ResourceLocation getResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
-    }
+	public static ResourceLocation getResource(String path) {
+		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+	}
 }
-

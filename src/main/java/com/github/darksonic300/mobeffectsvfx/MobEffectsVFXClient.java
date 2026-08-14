@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 @Mod(value = MobEffectsVFX.MODID, dist = Dist.CLIENT)
 public class MobEffectsVFXClient {
 
-    public MobEffectsVFXClient(IEventBus bus, ModContainer modContainer) {
-        MEVParticles.register(bus);
-    }
+	public MobEffectsVFXClient(IEventBus bus, ModContainer modContainer) {
+		MEVParticles.register(bus);
+	}
 }

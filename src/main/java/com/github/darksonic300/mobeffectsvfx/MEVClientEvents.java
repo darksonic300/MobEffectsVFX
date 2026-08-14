@@ -23,37 +23,36 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class MEVClientEvents {
 
-    @SubscribeEvent
-    public static void onModInit(final FMLClientSetupEvent event) {
-        MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log.");
-        MEVDataManager.initColorMap();
-    }
+	@SubscribeEvent
+	public static void onModInit(final FMLClientSetupEvent event) {
+		MobEffectsVFX.LOGGER.info("Hello from MobEffectsVFX! Adding more clutter to the log.");
+		MEVDataManager.initColorMap();
+	}
 
-    @SubscribeEvent
-    public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(), RisingParticles.Provider::new);
-        event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(), LoweringParticles.Provider::new);
-    }
+	@SubscribeEvent
+	public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
+		event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(), RisingParticles.Provider::new);
+		event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(), LoweringParticles.Provider::new);
+	}
 
-    @SubscribeEvent
-    public static void onConfigLoad(final ModConfigEvent event) {
-        MobEffectsVFX.LOGGER.info("Loading Blocklists config");
-        MEVDataManager.EFFECT_BLOCKLIST.clear();
-        MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
-                .map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
+	@SubscribeEvent
+	public static void onConfigLoad(final ModConfigEvent event) {
+		MobEffectsVFX.LOGGER.info("Loading Blocklists config");
+		MEVDataManager.EFFECT_BLOCKLIST.clear();
+		MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
+				.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
 
-        MEVDataManager.ENTITY_BLOCKLIST.clear();
-        MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
-                .map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
-    }
+		MEVDataManager.ENTITY_BLOCKLIST.clear();
+		MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
+				.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
+	}
 
-
-    // <-- ENTITY EVENTS -->
+	// <-- ENTITY EVENTS -->
 
 	@SubscribeEvent
 	public static void onEntityLeave(final EntityLeaveLevelEvent event) {
 		if (event.getEntity() instanceof LivingEntity && event.getLevel().isClientSide()) {
-            MEVDataManager.EFFECT_CACHE.invalidate(event.getEntity().getUUID());
+			MEVDataManager.EFFECT_CACHE.invalidate(event.getEntity().getUUID());
 		}
 	}
 
@@ -62,7 +61,7 @@ public class MEVClientEvents {
 		MEVDataManager.clearAllState();
 	}
 
-    // <-- RENDERING EVENTS -->
+	// <-- RENDERING EVENTS -->
 
 	@SubscribeEvent
 	public static void onRenderLevelStage(final RenderLevelStageEvent event) {

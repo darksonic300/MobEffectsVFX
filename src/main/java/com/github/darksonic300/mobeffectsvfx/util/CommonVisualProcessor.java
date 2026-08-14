@@ -13,46 +13,47 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommonVisualProcessor {
-    public static void processVisual(final int entityId) {
-        final var level = Minecraft.getInstance().level;
-        final var entity = (LivingEntity) level.getEntity(entityId);
-        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+	public static void processVisual(final int entityId) {
+		final var level = Minecraft.getInstance().level;
+		final var entity = (LivingEntity) level.getEntity(entityId);
+		final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
-        for (final var instance : entity.getActiveEffects()) {
-            executeInstance(entity, level, instance, map);
-        }
-    }
+		for (final var instance : entity.getActiveEffects()) {
+			executeInstance(entity, level, instance, map);
+		}
+	}
 
-    public static void processVisual(final int entityId, MobEffectInstance instance) {
-        final var level = Minecraft.getInstance().level;
-        final var entity = (LivingEntity) level.getEntity(entityId);
-        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+	public static void processVisual(final int entityId, MobEffectInstance instance) {
+		final var level = Minecraft.getInstance().level;
+		final var entity = (LivingEntity) level.getEntity(entityId);
+		final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
-        executeInstance(entity, level, instance, map);
-    }
+		executeInstance(entity, level, instance, map);
+	}
 
-    public static void processVisual(final int entityId, Collection<MobEffectInstance> instanceList) {
-        final var level = Minecraft.getInstance().level;
-        final var entity = (LivingEntity) level.getEntity(entityId);
-        final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
+	public static void processVisual(final int entityId, Collection<MobEffectInstance> instanceList) {
+		final var level = Minecraft.getInstance().level;
+		final var entity = (LivingEntity) level.getEntity(entityId);
+		final var map = MEVDataManager.EFFECT_CACHE.asMap().computeIfAbsent(entity.getUUID(), k -> new HashMap<>());
 
-        for (final var instance : instanceList) {
-            executeInstance(entity, level, instance, map);
-        }
-    }
+		for (final var instance : instanceList) {
+			executeInstance(entity, level, instance, map);
+		}
+	}
 
-    static void executeInstance(LivingEntity entity, ClientLevel level, MobEffectInstance instance, Map<MobEffect, Integer> map) {
-        final var effect = instance.getEffect().value();
-        final var duration = instance.getDuration();
+	static void executeInstance(LivingEntity entity, ClientLevel level, MobEffectInstance instance,
+			Map<MobEffect, Integer> map) {
+		final var effect = instance.getEffect().value();
+		final var duration = instance.getDuration();
 
-        if (MEVDataManager.EFFECT_BLOCKLIST.contains(effect))
-            return;
+		if (MEVDataManager.EFFECT_BLOCKLIST.contains(effect))
+			return;
 
-        if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
-            VisualLogic.triggerEffectVFX(entity, effect);
-            VisualLogic.triggerSoundAndParticles(level, entity, effect);
-        }
+		if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
+			VisualLogic.triggerEffectVFX(entity, effect);
+			VisualLogic.triggerSoundAndParticles(level, entity, effect);
+		}
 
-        map.put(effect, duration);
-    }
+		map.put(effect, duration);
+	}
 }
