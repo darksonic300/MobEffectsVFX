@@ -48,7 +48,7 @@ public class CommonVisualProcessor {
         if (MEVDataManager.EFFECT_BLOCKLIST.contains(effect))
             return;
 
-        if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.COMMON.refresh_cooldown.get()) {
+        if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
             VisualLogic.triggerEffectVFX(entity, effect);
             VisualLogic.triggerSoundAndParticles(level, entity, effect);
         }

@@ -14,7 +14,7 @@ public class MobEffectsVFX {
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public MobEffectsVFX(IEventBus bus, ModContainer modContainer) {
-		modContainer.registerConfig(ModConfig.Type.COMMON, MEVConfig.COMMON_SPEC);
+		modContainer.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
     public static ResourceLocation getResource(String path) {

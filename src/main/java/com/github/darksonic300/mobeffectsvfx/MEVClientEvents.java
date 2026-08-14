@@ -3,19 +3,12 @@ package com.github.darksonic300.mobeffectsvfx;
 import com.github.darksonic300.mobeffectsvfx.particle.LoweringParticles;
 import com.github.darksonic300.mobeffectsvfx.particle.RisingParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
-import com.github.darksonic300.mobeffectsvfx.util.CommonVisualProcessor;
 import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,10 +19,6 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
-
-import java.util.HashSet;
-import java.util.List;
 
 @EventBusSubscriber(modid = MobEffectsVFX.MODID, value = Dist.CLIENT)
 public class MEVClientEvents {
@@ -50,11 +39,11 @@ public class MEVClientEvents {
     public static void onConfigLoad(final ModConfigEvent event) {
         MobEffectsVFX.LOGGER.info("Loading Blocklists config");
         MEVDataManager.EFFECT_BLOCKLIST.clear();
-        MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.COMMON.blocklist.get().stream()
+        MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
                 .map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
 
         MEVDataManager.ENTITY_BLOCKLIST.clear();
-        MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.COMMON.entityBlocklist.get().stream()
+        MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
                 .map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
     }
 
