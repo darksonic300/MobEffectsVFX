@@ -4,7 +4,7 @@ import com.github.darksonic300.mobeffectsvfx.MEVConfig;
 import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
-import com.github.darksonic300.mobeffectsvfx.registry.VFXRenderers;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVVFXRenderers;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -20,7 +20,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
-public final class VisualLogic {
+public final class MEVVisualLogic {
 	private static final float PARTICLE_RANGE = 0.6F;
 
 	public record ActiveEffectVisual(LivingEntity source, MobEffect effect, long startTime) {
@@ -42,7 +42,7 @@ public final class VisualLogic {
 			return true;
 		}
 
-		IEffectRenderer renderer = VFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
+		IEffectRenderer renderer = MEVVFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
 		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, color);
 		return false;
 	}
@@ -60,7 +60,7 @@ public final class VisualLogic {
 	}
 
 	public static void spawnParticles(ClientLevel level, MobEffect effect, LivingEntity entity, MEVColor color) {
-		if (!MEVConfig.CLIENT.effect_type.get().equals(EffectTypes.RISING))
+		if (!MEVConfig.CLIENT.effect_type.get().equals(MEVEffectTypes.RISING))
 			return;
 
 		var particle = effect.isBeneficial()
@@ -68,14 +68,14 @@ public final class VisualLogic {
 				: MEVParticles.LOWERING_PARTICLES.get();
 
 		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.nextFloat(-PARTICLE_RANGE, 0f),
-					entity.getY() + 1 + MthUtils.nextFloat(0f, PARTICLE_RANGE),
-					entity.getZ() + MthUtils.nextFloat(0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
+			level.addParticle(particle, entity.getX() + MEVMthUtils.nextFloat(-PARTICLE_RANGE, 0f),
+					entity.getY() + 1 + MEVMthUtils.nextFloat(0f, PARTICLE_RANGE),
+					entity.getZ() + MEVMthUtils.nextFloat(0f, PARTICLE_RANGE), color.r(), color.g(), color.b());
 		}
 		for (int i = 0; i < 3; i++) {
-			level.addParticle(particle, entity.getX() + MthUtils.nextFloat(0f, PARTICLE_RANGE),
-					entity.getY() + 1 + MthUtils.nextFloat(-PARTICLE_RANGE, 0f),
-					entity.getZ() + MthUtils.nextFloat(-PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
+			level.addParticle(particle, entity.getX() + MEVMthUtils.nextFloat(0f, PARTICLE_RANGE),
+					entity.getY() + 1 + MEVMthUtils.nextFloat(-PARTICLE_RANGE, 0f),
+					entity.getZ() + MEVMthUtils.nextFloat(-PARTICLE_RANGE, 0f), color.r(), color.g(), color.b());
 		}
 	}
 

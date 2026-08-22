@@ -1,6 +1,6 @@
 package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mobeffectsvfx.util.EffectTypes;
+import com.github.darksonic300.mobeffectsvfx.util.MEVEffectTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -13,7 +13,7 @@ public record MEVConfig() {
 		public final ModConfigSpec.IntValue duration;
 		public final ModConfigSpec.DoubleValue opacity;
 		public final ModConfigSpec.IntValue refresh_cooldown;
-		public final ModConfigSpec.ConfigValue<EffectTypes> effect_type;
+		public final ModConfigSpec.ConfigValue<MEVEffectTypes> effect_type;
 		public final ModConfigSpec.ConfigValue<List<? extends String>> blocklist;
 		public final ModConfigSpec.ConfigValue<List<? extends String>> entityBlocklist;
 		public final ModConfigSpec.ConfigValue<String> soundEffect;
@@ -34,7 +34,7 @@ public record MEVConfig() {
 			builder.push("Rendering");
 			effect_type = builder.comment("Select the type of effect you want to display.")
 					.translation("config." + MobEffectsVFX.MODID + ".effect_type")
-					.defineEnum("Effect Type", EffectTypes.RISING);
+					.defineEnum("Effect Type", MEVEffectTypes.RISING);
 			builder.pop();
 
 			builder.push("Rendering");

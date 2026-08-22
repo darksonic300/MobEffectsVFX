@@ -12,13 +12,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class VisualParticles extends TextureSheetParticle {
+public abstract class MEVVisualParticles extends TextureSheetParticle {
 	private final LivingEntity target;
 	private final double offsetx;
 	private double offsety;
 	private final double offsetz;
 
-	protected VisualParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
+	protected MEVVisualParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
 		super(level, x, y, z);
 		this.target = target;
 

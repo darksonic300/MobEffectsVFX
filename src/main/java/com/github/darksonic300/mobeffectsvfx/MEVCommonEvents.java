@@ -1,10 +1,10 @@
 package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mobeffectsvfx.networking.AckPayload;
-import com.github.darksonic300.mobeffectsvfx.networking.MobEffectUpdatePayload;
-import com.github.darksonic300.mobeffectsvfx.networking.PresenceConfigurationTask;
-import com.github.darksonic300.mobeffectsvfx.networking.ServerPresencePayload;
-import com.github.darksonic300.mobeffectsvfx.util.CommonVisualProcessor;
+import com.github.darksonic300.mobeffectsvfx.networking.MEVAckPayload;
+import com.github.darksonic300.mobeffectsvfx.networking.MEVMobEffectUpdatePayload;
+import com.github.darksonic300.mobeffectsvfx.networking.MEVPresenceConfigurationTask;
+import com.github.darksonic300.mobeffectsvfx.networking.MEVServerPresencePayload;
+import com.github.darksonic300.mobeffectsvfx.util.MEVCommonVisualProcessor;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
@@ -18,24 +18,24 @@ public class MEVCommonEvents {
 
 	@SubscribeEvent
 	public static void registerConfigTask(final RegisterConfigurationTasksEvent event) {
-		event.register(new PresenceConfigurationTask(event.getListener()));
+		event.register(new MEVPresenceConfigurationTask(event.getListener()));
 	}
 
 	@SubscribeEvent
 	public static void registerPayloads(final RegisterPayloadHandlersEvent event) {
 		final PayloadRegistrar registrar = event.registrar(MobEffectsVFX.MODID).optional();
 
-		registrar.configurationToClient(ServerPresencePayload.TYPE, ServerPresencePayload.STREAM_CODEC,
+		registrar.configurationToClient(MEVServerPresencePayload.TYPE, MEVServerPresencePayload.STREAM_CODEC,
 				(payload, context) -> context.enqueueWork(() -> MEVDataManager.setIsServerSide(true))
-						.thenAccept(v -> context.reply(new AckPayload())));
+						.thenAccept(v -> context.reply(new MEVAckPayload())));
 
-		registrar.playToClient(MobEffectUpdatePayload.TYPE, MobEffectUpdatePayload.STREAM_CODEC,
+		registrar.playToClient(MEVMobEffectUpdatePayload.TYPE, MEVMobEffectUpdatePayload.STREAM_CODEC,
 				(payload, context) -> context.enqueueWork(() -> {
-					CommonVisualProcessor.processVisual(payload.entityId(), payload.instance());
+					MEVCommonVisualProcessor.processVisual(payload.entityId(), payload.instance());
 				}));
 
-		registrar.playToServer(AckPayload.TYPE, AckPayload.STREAM_CODEC,
-				(payload, context) -> context.finishCurrentTask(PresenceConfigurationTask.TYPE));
+		registrar.playToServer(MEVAckPayload.TYPE, MEVAckPayload.STREAM_CODEC,
+				(payload, context) -> context.finishCurrentTask(MEVPresenceConfigurationTask.TYPE));
 	}
 
 	@SubscribeEvent
@@ -45,6 +45,6 @@ public class MEVCommonEvents {
 		if (MEVDataManager.ENTITY_BLOCKLIST.contains(entity.getType()))
 			return;
 
-		PacketDistributor.sendToAllPlayers(new MobEffectUpdatePayload(entity.getId(), event.getEffectInstance()));
+		PacketDistributor.sendToAllPlayers(new MEVMobEffectUpdatePayload(entity.getId(), event.getEffectInstance()));
 	}
 }

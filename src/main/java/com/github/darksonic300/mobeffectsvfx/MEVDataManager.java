@@ -1,6 +1,6 @@
 package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
+import com.github.darksonic300.mobeffectsvfx.util.MEVVisualLogic;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public final class MEVDataManager {
 	public static final Map<Integer, MobEffect> COLOR_TO_EFFECT = new HashMap<>();
 
-	public static final Queue<VisualLogic.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
+	public static final Queue<MEVVisualLogic.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
 	public static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
 			.expireAfterAccess(1, TimeUnit.MINUTES).build();
 

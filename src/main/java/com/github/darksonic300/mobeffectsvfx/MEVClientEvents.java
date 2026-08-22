@@ -1,9 +1,9 @@
 package com.github.darksonic300.mobeffectsvfx;
 
-import com.github.darksonic300.mobeffectsvfx.particle.LoweringParticles;
-import com.github.darksonic300.mobeffectsvfx.particle.RisingParticles;
+import com.github.darksonic300.mobeffectsvfx.particle.MEVLoweringParticles;
+import com.github.darksonic300.mobeffectsvfx.particle.MEVRisingParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
-import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
+import com.github.darksonic300.mobeffectsvfx.util.MEVVisualLogic;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -31,8 +31,8 @@ public class MEVClientEvents {
 
 	@SubscribeEvent
 	public static void registerParticleFactories(final RegisterParticleProvidersEvent event) {
-		event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(), RisingParticles.Provider::new);
-		event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(), LoweringParticles.Provider::new);
+		event.registerSpriteSet(MEVParticles.RISING_PARTICLES.get(), MEVRisingParticles.Provider::new);
+		event.registerSpriteSet(MEVParticles.LOWERING_PARTICLES.get(), MEVLoweringParticles.Provider::new);
 	}
 
 	@SubscribeEvent
@@ -79,7 +79,7 @@ public class MEVClientEvents {
 		while (iterator.hasNext()) {
 			var item = iterator.next();
 			poseStack.pushPose();
-			boolean hasFinished = VisualLogic.animationLoop(event, bufferSource, item);
+			boolean hasFinished = MEVVisualLogic.animationLoop(event, bufferSource, item);
 			if (hasFinished)
 				iterator.remove();
 			poseStack.popPose();

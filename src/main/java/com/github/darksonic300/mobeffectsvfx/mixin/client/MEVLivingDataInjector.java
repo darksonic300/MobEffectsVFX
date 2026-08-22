@@ -2,7 +2,7 @@ package com.github.darksonic300.mobeffectsvfx.mixin.client;
 
 import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.MobEffectsVFX;
-import com.github.darksonic300.mobeffectsvfx.util.CommonVisualProcessor;
+import com.github.darksonic300.mobeffectsvfx.util.MEVCommonVisualProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -26,13 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityDataInjector extends Entity {
+public abstract class MEVLivingDataInjector extends Entity {
 
 	@Shadow
 	@Final
 	public static EntityDataAccessor<List<ParticleOptions>> DATA_EFFECT_PARTICLES;
 
-	public LivingEntityDataInjector(EntityType<?> entityType, Level level) {
+	public MEVLivingDataInjector(EntityType<?> entityType, Level level) {
 		super(entityType, level);
 	}
 
@@ -63,7 +63,7 @@ public abstract class LivingEntityDataInjector extends Entity {
 		}
 
 		try {
-			CommonVisualProcessor.processVisual(entity.getId(), instanceList);
+			MEVCommonVisualProcessor.processVisual(entity.getId(), instanceList);
 		} catch (Throwable t) {
 			MobEffectsVFX.LOGGER.warn("MobEffectsVFX threw an exception: %s".formatted(t.fillInStackTrace()));
 		}

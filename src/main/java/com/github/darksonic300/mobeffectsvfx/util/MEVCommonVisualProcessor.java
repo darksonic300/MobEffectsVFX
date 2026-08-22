@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommonVisualProcessor {
+public class MEVCommonVisualProcessor {
 	public static void processVisual(final int entityId) {
 		final var level = Minecraft.getInstance().level;
 		final var entity = (LivingEntity) level.getEntity(entityId);
@@ -50,8 +50,8 @@ public class CommonVisualProcessor {
 			return;
 
 		if (!map.containsKey(effect) || duration > map.get(effect) + MEVConfig.CLIENT.refresh_cooldown.get()) {
-			VisualLogic.triggerEffectVFX(entity, effect);
-			VisualLogic.triggerSoundAndParticles(level, entity, effect);
+			MEVVisualLogic.triggerEffectVFX(entity, effect);
+			MEVVisualLogic.triggerSoundAndParticles(level, entity, effect);
 		}
 
 		map.put(effect, duration);
