@@ -42,10 +42,10 @@ Other independant configurability options include: **VFX Opacity** and **Duratio
 〰️ - Planned/WIP <br>
 ❌ - Not Currently Planned <br><br>
 
-|   Modloader  | Up to 1.20 | 1.20.1 | 1.20.2 - 1.21 | 1.21.1 | 1.21.2 - 1.21.10 | 1.21.11 |
+|   Modloader  | Up to 1.20 | 1.20.1 | 1.20.2 - 1.21 | 1.21.1 | 1.21.2 - 1.21.11 | 26.1 |
 |:------------:|:------:|:------:|:-------------:|:------:|:----------------:|:-------:|
-|     Forge    |    ❌   |    ✅   |       ❌       |   〰️   |         ❌        |    〰️   |
-|   NeoForge   |    ❌   |    ✅   |       ❌       |   〰️   |         ❌        |    〰️   |
+|     Forge    |    ❌   |    ✅   |       ❌       |   ❌   |         ❌        |    ❌   |
+|   NeoForge   |    ❌   |    ✅   |       ❌       |   ✅   |         ❌        |    〰️   |
 | Fabric/Quilt |    ❌   |    ❌   |       ❌       |    ❌   |         ❌        |    ❌    |
 
 *Note: Pull Requests with non-planned versions are accepted outside of Fabric/Quilt, but LTS support 
