@@ -6,6 +6,7 @@ import com.github.darksonic300.mobeffectsvfx.registry.VFXRenderers;
 import com.github.darksonic300.mobeffectsvfx.util.EffectTypes;
 import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.github.darksonic300.mobeffectsvfx.util.MthUtils;
+import com.github.darksonic300.mobeffectsvfx.util.VisualLogic;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class MobEffectsHandlingEvents {
 	private static final float PARTICLE_RANGE = 0.6F;
 
-	private static final Queue<MobEffectsVFX.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
+	private static final Queue<VisualLogic.ActiveEffectVisual> ACTIVE_VISUALS = new ConcurrentLinkedQueue<>();
 	private static final Cache<UUID, Map<MobEffect, Integer>> EFFECT_CACHE = CacheBuilder.newBuilder()
 			.expireAfterAccess(5, TimeUnit.MINUTES).build();
 
@@ -128,7 +129,7 @@ public class MobEffectsHandlingEvents {
 	 * CuboidModel.java
 	 */
 	private static boolean animationLoop(final RenderLevelStageEvent event,
-			final MultiBufferSource.BufferSource bufferSource, MobEffectsVFX.ActiveEffectVisual visual) {
+			final MultiBufferSource.BufferSource bufferSource, VisualLogic.ActiveEffectVisual visual) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		MEVColor color = MEVColor.getEffectColor(visual.effect());
 		long elapsedTime = Util.getMillis() - visual.startTime();
@@ -185,6 +186,6 @@ public class MobEffectsHandlingEvents {
 	}
 
 	private static void triggerEffectVFX(LivingEntity source, MobEffect effect) {
-		ACTIVE_VISUALS.add(new MobEffectsVFX.ActiveEffectVisual(source, effect, Util.getMillis()));
+		ACTIVE_VISUALS.add(new VisualLogic.ActiveEffectVisual(source, effect, Util.getMillis()));
 	}
 }
