@@ -1,6 +1,6 @@
-package com.github.darksonic300.mobeffectvfx.model;
+package com.github.darksonic300.mobeffectsvfx.model;
 
-import com.github.darksonic300.mobeffectvfx.util.MEVColor;
+import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
