@@ -1,11 +1,11 @@
-package com.github.darksonic300.mob_effect_vfx;
+package com.github.darksonic300.mobeffectvfx;
 
-import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
-import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
-import com.github.darksonic300.mob_effect_vfx.registry.VFXRenderers;
-import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
-import com.github.darksonic300.mob_effect_vfx.util.MEVColor;
-import com.github.darksonic300.mob_effect_vfx.util.MthUtils;
+import com.github.darksonic300.mobeffectvfx.model.IEffectRenderer;
+import com.github.darksonic300.mobeffectvfx.registry.MEVParticles;
+import com.github.darksonic300.mobeffectvfx.registry.VFXRenderers;
+import com.github.darksonic300.mobeffectvfx.util.EffectTypes;
+import com.github.darksonic300.mobeffectvfx.util.MEVColor;
+import com.github.darksonic300.mobeffectvfx.util.MthUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;

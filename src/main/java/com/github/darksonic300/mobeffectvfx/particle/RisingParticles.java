@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.particle;
+package com.github.darksonic300.mobeffectvfx.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

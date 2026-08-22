@@ -1,6 +1,6 @@
-package com.github.darksonic300.mob_effect_vfx.registry;
+package com.github.darksonic300.mobeffectvfx.registry;
 
-import com.github.darksonic300.mob_effect_vfx.MobEffectsVFX;
+import com.github.darksonic300.mobeffectvfx.MobEffectsVFX;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;

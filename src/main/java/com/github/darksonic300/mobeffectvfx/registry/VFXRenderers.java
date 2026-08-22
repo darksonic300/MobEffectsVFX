@@ -1,11 +1,11 @@
-package com.github.darksonic300.mob_effect_vfx.registry;
+package com.github.darksonic300.mobeffectvfx.registry;
 
-import com.github.darksonic300.mob_effect_vfx.model.CuboidRenderer;
-import com.github.darksonic300.mob_effect_vfx.model.FlatCuboidRenderer;
-import com.github.darksonic300.mob_effect_vfx.model.IEffectRenderer;
-import com.github.darksonic300.mob_effect_vfx.model.RisingCuboidRenderer;
-import com.github.darksonic300.mob_effect_vfx.model.StationaryCuboidRenderer;
-import com.github.darksonic300.mob_effect_vfx.util.EffectTypes;
+import com.github.darksonic300.mobeffectvfx.model.CuboidRenderer;
+import com.github.darksonic300.mobeffectvfx.model.FlatCuboidRenderer;
+import com.github.darksonic300.mobeffectvfx.model.IEffectRenderer;
+import com.github.darksonic300.mobeffectvfx.model.RisingCuboidRenderer;
+import com.github.darksonic300.mobeffectvfx.model.StationaryCuboidRenderer;
+import com.github.darksonic300.mobeffectvfx.util.EffectTypes;
 import java.util.HashMap;
 import java.util.Map;
 

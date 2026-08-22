@@ -1,8 +1,8 @@
-package com.github.darksonic300.mob_effect_vfx;
+package com.github.darksonic300.mobeffectvfx;
 
-import com.github.darksonic300.mob_effect_vfx.particle.LoweringParticles;
-import com.github.darksonic300.mob_effect_vfx.particle.RisingParticles;
-import com.github.darksonic300.mob_effect_vfx.registry.MEVParticles;
+import com.github.darksonic300.mobeffectvfx.particle.LoweringParticles;
+import com.github.darksonic300.mobeffectvfx.particle.RisingParticles;
+import com.github.darksonic300.mobeffectvfx.registry.MEVParticles;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.LivingEntity;

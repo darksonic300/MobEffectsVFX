@@ -1,4 +1,4 @@
-package com.github.darksonic300.mob_effect_vfx.util;
+package com.github.darksonic300.mobeffectvfx.util;
 
 import net.minecraft.util.RandomSource;
 
