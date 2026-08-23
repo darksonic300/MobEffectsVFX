@@ -11,7 +11,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public final class MEVLoweringParticles extends MEVVisualParticles {
-	private MEVLoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
+	private MEVLoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z,
+			LivingEntity target) {
 		super(sprite, level, x, y, z, target);
 		this.gravity = 0.5f;
 	}
