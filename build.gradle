@@ -141,25 +141,31 @@ idea {
     }
 }
 
-/*
 publishMods {
-    file = jar.archiveFile
-    changelog = "Changelog"
+    file = tasks.jar.archiveFile
+    changelog = "Full Release"
     type = STABLE
     modLoaders.add("neoforge")
+    displayName = mod_name + " " + minecraft_version + "-" + mod_version
 
     curseforge {
         accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-        projectId = ${curseforge_project_id}
-        minecraftVersions.add(${minecraft_version})
+        projectId = curseforge_project_id
+        minecraftVersions.add(minecraft_version)
         client = true
         server = true
     }
 
     modrinth {
         accessToken = providers.environmentVariable("MODRINTH_API_KEY")
-        projectId = ${modrinth_project_id}
-        minecraftVersions.add(${minecraft_version})
+        projectId = modrinth_project_id
+        minecraftVersions.add(minecraft_version)
+        environment = CLIENT_ONLY_SERVER_OPTIONAL
+    }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = "darksonic300/MobEffectsVFX"
+        commitish = minecraft_version
     }
 }
- */
