@@ -14,9 +14,6 @@ A Client-side Minecraft mod that adds simple 3D VFX on effect application!
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/lq1wGfHO?color=00AF5C&logo=modrinth&label=Downloads&style=for-the-badge)](https://modrinth.com/mod/mobeffectsvfx)
 [![Modrinth Version](https://img.shields.io/modrinth/game-versions/lq1wGfHO?color=00AF5C&label=Latest&logo=modrinth&last=true&style=for-the-badge)](https://modrinth.com/mod/mobeffectsvfx)
 
-<!-- [![Modrinth Downloads](https://img.shields.io/modrinth/dt/gcHIih5B?color=00AF5C&logo=modrinth&label=Downloads)](https://modrinth.com/mod/deep-aether)
-[![Modrinth Version](https://img.shields.io/modrinth/game-versions/gcHIih5B?color=00AF5C&label=Latest&logo=modrinth&last=true)](https://modrinth.com/mod/deep-aether) -->
-
 ## Project Info
 
 ### Description
@@ -38,14 +35,16 @@ Other independant configurability options include: **VFX Opacity** and **Duratio
 
 ### Versioning
 
-✅ - Currently Available <br>
+✅ - Supported and Available (LTS)<br>
+✔️ - Available (Bug Fixes only)<br>
 〰️ - Planned/WIP <br>
+🔵 - Community Version (Supported with Contributions only) <br>
 ❌ - Not Currently Planned <br><br>
 
 |   Modloader  | Up to 1.20 | 1.20.1 | 1.20.2 - 1.21 | 1.21.1 | 1.21.2 - 1.21.11 | 26.1 |
 |:------------:|:------:|:------:|:-------------:|:------:|:----------------:|:-------:|
-|     Forge    |    ❌   |    ✅   |       ❌       |   ❌   |         ❌        |    ❌   |
-|   NeoForge   |    ❌   |    ✅   |       ❌       |   ✅   |         ❌        |    〰️   |
+|     Forge    |    ❌   |    ✔️   |       ❌       |   ❌   |         ❌        |    ❌   |
+|   NeoForge   |    ❌   |    ✔️   |       ❌       |   ✅   |         ❌        |    〰️   |
 | Fabric/Quilt |    ❌   |    ❌   |       ❌       |    ❌   |         ❌        |    ❌    |
 
 *Note: Pull Requests with non-planned versions are accepted outside of Fabric/Quilt, but LTS support 
