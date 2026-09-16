@@ -5,13 +5,13 @@ import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVVFXRenderers;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -50,7 +50,7 @@ public final class MEVVisualLogic {
 	public static void triggerSoundAndParticles(final ClientLevel level, final LivingEntity entity,
 			final MobEffect effect) {
 		SoundEvent sound = BuiltInRegistries.SOUND_EVENT
-				.get(ResourceLocation.tryParse(MEVConfig.CLIENT.soundEffect.get()));
+				.getValue(Identifier.tryParse(MEVConfig.CLIENT.soundEffect.get()));
 
 		Minecraft.getInstance().getSoundManager()
 				.play(new SimpleSoundInstance(sound == null ? SoundEvents.ENCHANTMENT_TABLE_USE : sound,

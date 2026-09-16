@@ -1,7 +1,7 @@
 package com.github.darksonic300.mobeffectsvfx;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -17,7 +17,7 @@ public class MobEffectsVFX {
 		modContainer.registerConfig(ModConfig.Type.CLIENT, MEVConfig.CLIENT_SPEC);
 	}
 
-	public static ResourceLocation getResource(String path) {
-		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+	public static Identifier getResource(String path) {
+		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 }

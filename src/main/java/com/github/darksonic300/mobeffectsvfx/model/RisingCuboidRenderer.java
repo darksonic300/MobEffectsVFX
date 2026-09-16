@@ -3,7 +3,9 @@ package com.github.darksonic300.mobeffectsvfx.model;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
 import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,8 +19,9 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
 			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
 		PoseStack poseStack = event.getPoseStack();
-		Vec3 camera = event.getCamera().getPosition();
+        Vec3 camera = Minecraft.getInstance().getCameraEntity().getEyePosition();
 
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
@@ -28,7 +31,7 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height() / 2) + 0.5F);
 
 		// Apply camera offset transformation
-		float partialTick = event.getPartialTick().getRealtimeDeltaTicks();
+		float partialTick = deltaTracker.getRealtimeDeltaTicks();
 		double x = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
 		double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
 		y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
@@ -36,7 +39,7 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, baseSize, baseSize);
-		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
+		this.render(poseStack, bufferSource.getBuffer(RenderTypes.lightning()), color, effectCategory);
 	}
 
 	@Override

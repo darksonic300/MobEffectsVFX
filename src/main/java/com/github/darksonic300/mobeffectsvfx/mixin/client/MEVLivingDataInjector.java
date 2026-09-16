@@ -4,11 +4,14 @@ import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.MobEffectsVFX;
 import com.github.darksonic300.mobeffectsvfx.util.MEVCommonVisualProcessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.ColorLerper;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -52,7 +55,7 @@ public abstract class MEVLivingDataInjector extends Entity {
 
 		for (var particle : particleList) {
 			if (particle instanceof ColorParticleOption colorParticle) {
-				int color = FastColor.ARGB32.colorFromFloat(0, colorParticle.getRed(), colorParticle.getGreen(),
+				int color = ARGB.colorFromFloat(0, colorParticle.getRed(), colorParticle.getGreen(),
 						colorParticle.getBlue());
 
 				MobEffect effect = MEVDataManager.COLOR_TO_EFFECT.get(color);

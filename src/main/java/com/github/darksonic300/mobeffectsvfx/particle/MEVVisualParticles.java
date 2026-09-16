@@ -3,27 +3,34 @@ package com.github.darksonic300.mobeffectsvfx.particle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
-import net.minecraft.client.particle.TextureSheetParticle;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class MEVVisualParticles extends TextureSheetParticle {
+public abstract class MEVVisualParticles extends SingleQuadParticle {
 	private final LivingEntity target;
 	private final double offsetx;
 	private double offsety;
 	private final double offsetz;
 
+    public static final SingleQuadParticle.Layer LAYER = new SingleQuadParticle.Layer(
+            false,
+            TextureAtlas.LOCATION_PARTICLES,
+            RenderPipelines.OPAQUE_PARTICLE
+    );
+
 	protected MEVVisualParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z,
 			LivingEntity target) {
-		super(level, x, y, z);
+		super(level, x, y, z, sprite.first());
 		this.target = target;
 
-		this.setSpriteFromAge(sprite);
+        this.setSpriteFromAge(sprite);
 		this.rCol = (float) Math.min(1.0F, this.rCol + 0.2);
 		this.gCol = (float) Math.min(1.0F, this.gCol + 0.2);
 		this.bCol = (float) Math.min(1.0F, this.bCol + 0.2);
@@ -65,20 +72,15 @@ public abstract class MEVVisualParticles extends TextureSheetParticle {
 		this.yd -= 0.04D * (double) this.gravity;
 		this.offsety += this.yd;
 
-		this.setPos(Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.x, this.target.getX() + offsetx),
-				Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.y, this.target.getY() + offsety),
-				Mth.lerp(mc.getTimer().getGameTimeDeltaTicks(), this.z, this.target.getZ() + offsetz));
+		this.setPos(Mth.lerp(mc.getDeltaTracker().getGameTimeDeltaTicks(), this.x, this.target.getX() + offsetx),
+				Mth.lerp(mc.getDeltaTracker().getGameTimeDeltaTicks(), this.y, this.target.getY() + offsety),
+				Mth.lerp(mc.getDeltaTracker().getGameTimeDeltaTicks(), this.z, this.target.getZ() + offsetz));
 
 		this.yd *= this.friction;
 	}
 
-	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_LIT;
-	}
-
-	@Override
-	protected int getLightColor(float level) {
-		return LightTexture.pack(15, 15);
-	}
+    @Override
+    protected SingleQuadParticle.Layer getLayer() {
+        return LAYER;
+    }
 }

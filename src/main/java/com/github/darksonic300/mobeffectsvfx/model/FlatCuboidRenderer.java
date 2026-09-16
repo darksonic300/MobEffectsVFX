@@ -4,12 +4,14 @@ import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
 import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.IRenderableSection;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
@@ -18,8 +20,10 @@ public final class FlatCuboidRenderer extends CuboidRenderer {
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
 			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+
 		PoseStack poseStack = event.getPoseStack();
-		Vec3 camera = event.getCamera().getPosition();
+		Vec3 camera = Minecraft.getInstance().getCameraEntity().getEyePosition();
 
 		float a = calculateAlpha(color.a(), progress);
 		a += 0.1f;
@@ -31,16 +35,16 @@ public final class FlatCuboidRenderer extends CuboidRenderer {
 				? ((source.getDimensions(Pose.STANDING).width() + 0.7F) * 1.5F) - scaleOffset
 				: (source.getScale() + 0.3F) * scaleOffset;
 
-		double visualX = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.xo, source.getX())
+		double visualX = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.xo, source.getX())
 				- (baseSize / 2.0); // Center the
 		// cuboid on the
 		// player
-		double visualZ = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.zo, source.getZ())
+		double visualZ = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.zo, source.getZ())
 				- (baseSize / 2.0);
 
 		// Apply camera offset transformation
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick().getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y
+		double y = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y
 				+ 0.01D;
 		double z = visualZ - camera.z;
 

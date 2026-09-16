@@ -1,7 +1,7 @@
 package com.github.darksonic300.mobeffectsvfx;
 
 import com.github.darksonic300.mobeffectsvfx.util.MEVEffectTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -46,13 +46,13 @@ public record MEVConfig() {
 			builder.push("General");
 			blocklist = builder.comment("A list of effects you want to exclude.")
 					.translation("config." + MobEffectsVFX.MODID + ".blocklist").defineListAllowEmpty("Blocklist",
-							List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
+							List.of(), () -> "", obj -> Identifier.isValidPath((String) obj));
 			builder.pop();
 
 			builder.push("General");
 			entityBlocklist = builder.comment("A list of entities you want to exclude.")
 					.translation("config." + MobEffectsVFX.MODID + ".entityBlocklist").defineListAllowEmpty(
-							"Entity Blocklist", List.of(), () -> "", obj -> ResourceLocation.isValidPath((String) obj));
+							"Entity Blocklist", List.of(), () -> "", obj -> Identifier.isValidPath((String) obj));
 			builder.pop();
 
 			builder.push("Sound");

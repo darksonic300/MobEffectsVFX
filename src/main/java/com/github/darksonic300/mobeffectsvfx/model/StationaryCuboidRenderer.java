@@ -3,7 +3,9 @@ package com.github.darksonic300.mobeffectsvfx.model;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
 import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,8 +35,9 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 	@Override
 	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
 			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
+        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
 		PoseStack poseStack = event.getPoseStack();
-		Vec3 camera = event.getCamera().getPosition();
+        Vec3 camera = Minecraft.getInstance().getCameraEntity().getEyePosition();
 
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
@@ -42,19 +45,19 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
 		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-		double visualX = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.xo, source.getX())
+		double visualX = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.xo, source.getX())
 				- (baseSize / 2.0);
-		double visualZ = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.zo, source.getZ())
+		double visualZ = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.zo, source.getZ())
 				- (baseSize / 2.0);
 
 		double x = visualX - camera.x;
-		double y = Mth.lerp(event.getPartialTick().getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
+		double y = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, height, baseSize);
 
-		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
+		this.render(poseStack, bufferSource.getBuffer(RenderTypes.lightning()), color, effectCategory);
 	}
 
 	@Override

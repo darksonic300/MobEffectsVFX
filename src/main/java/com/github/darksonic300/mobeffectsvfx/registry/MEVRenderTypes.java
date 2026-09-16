@@ -1,28 +1,33 @@
 package com.github.darksonic300.mobeffectsvfx.registry;
 
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
 
-// We extend ShaderStateShard only to use the states freely. This is a registry class.
-public final class MEVRenderTypes extends RenderStateShard.ShaderStateShard {
+import static net.minecraft.client.renderer.RenderPipelines.MATRICES_FOG_SNIPPET;
 
-	public static final RenderType BASE = RenderType.create("base", DefaultVertexFormat.POSITION_COLOR,
-			VertexFormat.Mode.QUADS, 256, false, // draggable
-			true, // sortOnUpload (needed for transparency)
-			RenderType.CompositeState.builder()
-					.setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLightningShader))
-					.setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-					.setCullState(RenderStateShard.NO_CULL).setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-					.setWriteMaskState(RenderStateShard.COLOR_WRITE).createCompositeState(false));
+public final class MEVRenderTypes {
 
-	public static final RenderType FLAT = RenderType.create("flat", DefaultVertexFormat.POSITION_COLOR,
-			VertexFormat.Mode.TRIANGLES, 256, false, true,
-			RenderType.CompositeState.builder()
-					.setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeLightningShader))
-					.setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-					.setCullState(RenderStateShard.NO_CULL).setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-					.setWriteMaskState(RenderStateShard.COLOR_WRITE).createCompositeState(false));
+    //TODO: is this worth it?
+    public static final RenderType BASE = RenderType.create("base", RenderSetup.builder(
+                    RenderPipelines.LIGHTNING
+    )
+            .createRenderSetup());
+
+	public static final RenderType FLAT = RenderType.create("flat", RenderSetup.builder(
+            RenderPipeline.builder(MATRICES_FOG_SNIPPET)
+                    .withLocation("pipeline/lightning")
+                    .withVertexShader("core/rendertype_lightning")
+                    .withFragmentShader("core/rendertype_lightning")
+                    .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING))
+                    .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
+                    .withDepthStencilState(DepthStencilState.DEFAULT)
+                    .build()
+    ).createRenderSetup());
 }

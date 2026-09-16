@@ -7,8 +7,9 @@ import com.github.darksonic300.mobeffectsvfx.util.MEVVisualLogic;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,11 +41,11 @@ public class MEVClientEvents {
 		MobEffectsVFX.LOGGER.info("Loading Blocklists config");
 		MEVDataManager.EFFECT_BLOCKLIST.clear();
 		MEVDataManager.EFFECT_BLOCKLIST.addAll(MEVConfig.CLIENT.blocklist.get().stream()
-				.map(entry -> BuiltInRegistries.MOB_EFFECT.get(ResourceLocation.parse(entry))).toList());
+				.map(entry -> BuiltInRegistries.MOB_EFFECT.getValue(Identifier.parse(entry))).toList());
 
 		MEVDataManager.ENTITY_BLOCKLIST.clear();
 		MEVDataManager.ENTITY_BLOCKLIST.addAll(MEVConfig.CLIENT.entityBlocklist.get().stream()
-				.map(entry -> BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse(entry))).toList());
+				.map(entry -> BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(entry))).toList());
 	}
 
 	// <-- ENTITY EVENTS -->
@@ -64,10 +65,7 @@ public class MEVClientEvents {
 	// <-- RENDERING EVENTS -->
 
 	@SubscribeEvent
-	public static void onRenderLevelStage(final RenderLevelStageEvent event) {
-		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES)
-			return;
-
+	public static void onRenderLevelStage(final RenderLevelStageEvent.AfterTranslucentParticles event) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null || MEVDataManager.ACTIVE_VISUALS.isEmpty())
 			return;
