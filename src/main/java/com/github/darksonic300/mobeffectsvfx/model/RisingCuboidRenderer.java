@@ -17,11 +17,12 @@ import org.joml.Matrix4f;
 public final class RisingCuboidRenderer extends CuboidRenderer {
 
 	@Override
-	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
-        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+	public void initRender(MultiBufferSource.BufferSource bufferSource,
+			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
+			MobEffectCategory effectCategory, MEVColor color) {
+		var deltaTracker = Minecraft.getInstance().getDeltaTracker();
 		PoseStack poseStack = event.getPoseStack();
-        Vec3 camera = Minecraft.getInstance().getCameraEntity().getEyePosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);

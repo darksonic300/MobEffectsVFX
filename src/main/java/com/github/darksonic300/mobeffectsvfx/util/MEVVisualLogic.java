@@ -30,7 +30,7 @@ public final class MEVVisualLogic {
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	public static boolean animationLoop(final RenderLevelStageEvent event,
+	public static boolean animationLoop(final RenderLevelStageEvent.AfterTranslucentParticles event,
 			final MultiBufferSource.BufferSource bufferSource, ActiveEffectVisual visual) {
 		MobEffectCategory effectCategory = visual.effect().getCategory();
 		MEVColor color = MEVColor.getEffectColor(visual.effect());

@@ -11,19 +11,19 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.IRenderableSection;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Matrix4f;
 
 public final class FlatCuboidRenderer extends CuboidRenderer {
 
 	@Override
-	public void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event,
-			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color) {
-        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+	public void initRender(MultiBufferSource.BufferSource bufferSource,
+			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
+			MobEffectCategory effectCategory, MEVColor color) {
+		var deltaTracker = Minecraft.getInstance().getDeltaTracker();
 
 		PoseStack poseStack = event.getPoseStack();
-		Vec3 camera = Minecraft.getInstance().getCameraEntity().getEyePosition();
+		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
 		float a = calculateAlpha(color.a(), progress);
 		a += 0.1f;
@@ -35,17 +35,15 @@ public final class FlatCuboidRenderer extends CuboidRenderer {
 				? ((source.getDimensions(Pose.STANDING).width() + 0.7F) * 1.5F) - scaleOffset
 				: (source.getScale() + 0.3F) * scaleOffset;
 
-		double visualX = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.xo, source.getX())
-				- (baseSize / 2.0); // Center the
+		double visualX = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0); // Center
+																														// the
 		// cuboid on the
 		// player
-		double visualZ = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.zo, source.getZ())
-				- (baseSize / 2.0);
+		double visualZ = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
 
 		// Apply camera offset transformation
 		double x = visualX - camera.x;
-		double y = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y
-				+ 0.01D;
+		double y = Mth.lerp(deltaTracker.getGameTimeDeltaTicks(), source.yo, source.getY()) - camera.y + 0.01D;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);

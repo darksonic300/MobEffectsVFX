@@ -7,11 +7,8 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jspecify.annotations.Nullable;
 
-@OnlyIn(Dist.CLIENT)
 public final class MEVLoweringParticles extends MEVVisualParticles {
 	private MEVLoweringParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z,
 			LivingEntity target) {
@@ -19,20 +16,19 @@ public final class MEVLoweringParticles extends MEVVisualParticles {
 		this.gravity = 0.5f;
 	}
 
-    @OnlyIn(Dist.CLIENT)
-    public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
-        @Override
-        public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel, double x, double y, double z,
-                                                 double r, double g, double b, RandomSource randomSource) {
-            LivingEntity target = null;
-            if (clientLevel != null) {
-                target = clientLevel.getNearestPlayer(x, y, z, 1, false);
-            }
+	public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
+		@Override
+		public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel,
+				double x, double y, double z, double r, double g, double b, RandomSource randomSource) {
+			LivingEntity target = null;
+			if (clientLevel != null) {
+				target = clientLevel.getNearestPlayer(x, y, z, 1, false);
+			}
 
-            var particle = new MEVLoweringParticles(this.sprite, clientLevel, x, y, z, target);
-            particle.setColor((float) r, (float) g, (float) b);
-            particle.setSize(5, 5);
-            return particle;
-        }
-    }
+			var particle = new MEVLoweringParticles(this.sprite, clientLevel, x, y, z, target);
+			particle.setColor((float) r, (float) g, (float) b);
+			particle.setSize(5, 5);
+			return particle;
+		}
+	}
 }

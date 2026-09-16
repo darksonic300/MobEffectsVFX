@@ -10,7 +10,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@OnlyIn(Dist.CLIENT)
 public record MEVParticles() {
 	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister
 			.create(BuiltInRegistries.PARTICLE_TYPE, MobEffectsVFX.MODID);

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.List;
 
 public record MEVConfig() {
-
 	public static class Client {
 		public final ModConfigSpec.IntValue duration;
 		public final ModConfigSpec.DoubleValue opacity;

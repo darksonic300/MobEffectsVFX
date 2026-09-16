@@ -2,35 +2,28 @@ package com.github.darksonic300.mobeffectsvfx.particle;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public abstract class MEVVisualParticles extends SingleQuadParticle {
 	private final LivingEntity target;
 	private final double offsetx;
 	private double offsety;
 	private final double offsetz;
 
-    public static final SingleQuadParticle.Layer LAYER = new SingleQuadParticle.Layer(
-            false,
-            TextureAtlas.LOCATION_PARTICLES,
-            RenderPipelines.OPAQUE_PARTICLE
-    );
+	public static final SingleQuadParticle.Layer LAYER = new SingleQuadParticle.Layer(false,
+			TextureAtlas.LOCATION_PARTICLES, RenderPipelines.OPAQUE_PARTICLE);
 
 	protected MEVVisualParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z,
 			LivingEntity target) {
 		super(level, x, y, z, sprite.first());
 		this.target = target;
 
-        this.setSpriteFromAge(sprite);
+		this.setSpriteFromAge(sprite);
 		this.rCol = (float) Math.min(1.0F, this.rCol + 0.2);
 		this.gCol = (float) Math.min(1.0F, this.gCol + 0.2);
 		this.bCol = (float) Math.min(1.0F, this.bCol + 0.2);
@@ -79,8 +72,8 @@ public abstract class MEVVisualParticles extends SingleQuadParticle {
 		this.yd *= this.friction;
 	}
 
-    @Override
-    protected SingleQuadParticle.Layer getLayer() {
-        return LAYER;
-    }
+	@Override
+	protected SingleQuadParticle.Layer getLayer() {
+		return LAYER;
+	}
 }

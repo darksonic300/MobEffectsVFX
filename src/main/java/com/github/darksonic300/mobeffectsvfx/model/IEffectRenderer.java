@@ -7,6 +7,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
 public interface IEffectRenderer {
-	void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent event, LivingEntity source,
-			float progress, MobEffectCategory effectCategory, MEVColor color);
+	void initRender(MultiBufferSource.BufferSource bufferSource, RenderLevelStageEvent.AfterTranslucentParticles event,
+			LivingEntity source, float progress, MobEffectCategory effectCategory, MEVColor color);
 }
