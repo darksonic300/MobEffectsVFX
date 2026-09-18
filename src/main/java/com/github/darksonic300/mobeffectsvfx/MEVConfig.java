@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 
+// TODO: Address Config values mismatch and conflict
 public record MEVConfig() {
 	public static class Client {
 		public final ModConfigSpec.IntValue duration;

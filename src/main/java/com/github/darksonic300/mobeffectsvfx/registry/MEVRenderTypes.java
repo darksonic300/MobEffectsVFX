@@ -9,13 +9,11 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 // I gotta redefine the LIGHTNING render type to remove culling and support triangle format
 public final class MEVRenderTypes {
 	public static final RenderType BASE = RenderType.create("base",
-			RenderSetup.builder(RenderPipelines.LIGHTNING.toBuilder()
-                    .withCull(false)
-                    .build()).createRenderSetup());
+			RenderSetup.builder(RenderPipelines.LIGHTNING.toBuilder().withCull(false).build()).createRenderSetup());
 
-    public static final RenderType FLAT = RenderType.create("flat",
-			RenderSetup.builder(RenderPipelines.LIGHTNING.toBuilder()
-                    .withCull(false)
-					.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
-					.build()).createRenderSetup());
+	public static final RenderType FLAT = RenderType.create("flat",
+			RenderSetup
+					.builder(RenderPipelines.LIGHTNING.toBuilder().withCull(false)
+							.withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES).build())
+					.createRenderSetup());
 }

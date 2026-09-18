@@ -36,7 +36,7 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 	public void initRender(MultiBufferSource.BufferSource bufferSource,
 			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
 			MobEffectCategory effectCategory, MEVColor color) {
-        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+		var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 		PoseStack poseStack = event.getPoseStack();
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
