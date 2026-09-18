@@ -36,7 +36,7 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 	public void initRender(MultiBufferSource.BufferSource bufferSource,
 			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
 			MobEffectCategory effectCategory, MEVColor color) {
-		var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 		PoseStack poseStack = event.getPoseStack();
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
@@ -46,17 +46,17 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
 		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
 
-		double visualX = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.xo, source.getX()) - (baseSize / 2.0);
-		double visualZ = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.zo, source.getZ()) - (baseSize / 2.0);
+		double visualX = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0);
+		double visualZ = Mth.lerp(partialTick, source.zo, source.getZ()) - (baseSize / 2.0);
 
 		double x = visualX - camera.x;
-		double y = Mth.lerp(deltaTracker.getRealtimeDeltaTicks(), source.yo, source.getY()) - camera.y;
+		double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
 		double z = visualZ - camera.z;
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, height, baseSize);
 
-		this.render(poseStack, bufferSource.getBuffer(RenderTypes.lightning()), color, effectCategory);
+		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
 	}
 
 	@Override

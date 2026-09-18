@@ -20,7 +20,7 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 	public void initRender(MultiBufferSource.BufferSource bufferSource,
 			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
 			MobEffectCategory effectCategory, MEVColor color) {
-		var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+		var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 		PoseStack poseStack = event.getPoseStack();
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
 
@@ -32,7 +32,6 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 		float yOffset = progress * ((source.getDimensions(Pose.STANDING).height() / 2) + 0.5F);
 
 		// Apply camera offset transformation
-		float partialTick = deltaTracker.getRealtimeDeltaTicks();
 		double x = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0) - camera.x;
 		double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
 		y = effectCategory != MobEffectCategory.HARMFUL ? y + yOffset : y + 1.7 - yOffset;
@@ -40,7 +39,7 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, baseSize, baseSize);
-		this.render(poseStack, bufferSource.getBuffer(RenderTypes.lightning()), color, effectCategory);
+		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
 	}
 
 	@Override
