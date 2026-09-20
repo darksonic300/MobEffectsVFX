@@ -13,24 +13,19 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jspecify.annotations.Nullable;
 
 public final class MEVRisingParticles extends MEVVisualParticles {
-	private MEVRisingParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, LivingEntity target) {
-		super(sprite, level, x, y, z, target);
+	private MEVRisingParticles(SpriteSet sprite, ClientLevel level, double x, double y, double z, double sourceX, double sourceY, double sourceZ) {
+		super(sprite, level, x, y, z, sourceX, sourceY, sourceZ);
 		this.gravity = -0.5f;
 	}
 
-	public record Provider(SpriteSet sprite) implements ParticleProvider<SimpleParticleType> {
+	public record Provider(SpriteSet sprite) implements ParticleProvider<MEVRisingOptions> {
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType simpleParticleType, ClientLevel clientLevel,
+		public @Nullable Particle createParticle(MEVRisingOptions type, ClientLevel clientLevel,
 				double x, double y, double z, double r, double g, double b, RandomSource randomSource) {
-			LivingEntity target = null;
-			if (clientLevel != null) {
-				target = clientLevel.getNearestPlayer(x, y, z, 1, false);
-			}
-
-			var particle = new MEVRisingParticles(this.sprite, clientLevel, x, y, z, target);
+			var particle = new MEVRisingParticles(this.sprite, clientLevel, x, y, z, type.sourceX, type.sourceY, type.sourceZ);
 			particle.setColor((float) r, (float) g, (float) b);
 			particle.setSize(5, 5);
 			return particle;
 		}
-	}
+    }
 }

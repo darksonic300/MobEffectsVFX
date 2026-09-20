@@ -3,6 +3,8 @@ package com.github.darksonic300.mobeffectsvfx.util;
 import com.github.darksonic300.mobeffectsvfx.MEVConfig;
 import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
 import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
+import com.github.darksonic300.mobeffectsvfx.particle.MEVLoweringOptions;
+import com.github.darksonic300.mobeffectsvfx.particle.MEVRisingOptions;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVVFXRenderers;
 import net.minecraft.util.Util;
@@ -64,8 +66,8 @@ public final class MEVVisualLogic {
 			return;
 
 		var particle = effect.isBeneficial()
-				? MEVParticles.RISING_PARTICLES.get()
-				: MEVParticles.LOWERING_PARTICLES.get();
+				? new MEVRisingOptions((float) entity.getX(), (float) entity.getY(), (float) entity.getZ())
+				: new MEVLoweringOptions((float) entity.getX(), (float) entity.getY(), (float) entity.getZ());
 
 		for (int i = 0; i < 3; i++) {
 			level.addParticle(particle, entity.getX() + MEVMthUtils.nextFloat(-PARTICLE_RANGE, 0f),
