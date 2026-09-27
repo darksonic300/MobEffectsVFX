@@ -21,5 +21,5 @@ public class MobEffectsVFX {
 		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 
-    //TODO: During effect rendering water is invisible
+	// TODO: During effect rendering water is invisible
 }

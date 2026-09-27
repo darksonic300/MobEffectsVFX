@@ -19,9 +19,9 @@ import org.joml.Matrix4f;
 
 public final class FlatCuboidRenderer extends CuboidRenderer {
 
-    public FlatCuboidRenderer(MobEffectCategory category, MEVColor color) {
-        super(category, color);
-    }
+	public FlatCuboidRenderer(MobEffectCategory category, MEVColor color) {
+		super(category, color);
+	}
 
 	public void setup(SubmitCustomGeometryEvent event, LivingEntity source, float progress) {
 		var deltaTracker = Minecraft.getInstance().getDeltaTracker();
@@ -53,8 +53,9 @@ public final class FlatCuboidRenderer extends CuboidRenderer {
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, 0, baseSize);
 
-        event.getSubmitNodeCollector().submitCustomGeometry(poseStack, this.getRenderType(), MEVVFXRenderers.get(MEVEffectTypes.FLAT).apply(this.category, this.color));
-    }
+		event.getSubmitNodeCollector().submitCustomGeometry(poseStack, this.getRenderType(),
+				MEVVFXRenderers.get(MEVEffectTypes.FLAT).apply(this.category, this.color));
+	}
 
 	@Override
 	void drawCuboid(VertexConsumer buffer, MEVColor opaque, MEVColor transparency, Matrix4f matrix) {
@@ -85,8 +86,8 @@ public final class FlatCuboidRenderer extends CuboidRenderer {
 		addVertex(buffer, matrix, 1, 0, 1, r_t, g_t, b_t, a);
 	}
 
-    @Override
-    public RenderType getRenderType() {
-        return MEVRenderTypes.FLAT;
-    }
+	@Override
+	public RenderType getRenderType() {
+		return MEVRenderTypes.FLAT;
+	}
 }

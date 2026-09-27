@@ -9,11 +9,11 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 public final class MEVRenderTypes {
 	public static final RenderType BASE = RenderType.create("base",
 			RenderSetup.builder(RenderPipelines.LIGHTNING.toBuilder().withCull(false).build())
-                    .setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
+					.setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
 
 	public static final RenderType FLAT = RenderType.create("flat",
-            RenderSetup.builder(RenderPipelines.LIGHTNING.toBuilder()
-                            .withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
-                            .withCull(false).build())
-                    .setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
+			RenderSetup
+					.builder(RenderPipelines.LIGHTNING.toBuilder().withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
+							.withCull(false).build())
+					.setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
 }

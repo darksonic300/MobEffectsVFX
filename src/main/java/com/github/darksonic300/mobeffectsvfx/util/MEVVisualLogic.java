@@ -31,8 +31,9 @@ public final class MEVVisualLogic {
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	public static boolean animationLoop(SubmitCustomGeometryEvent event, CuboidRenderer renderer, ActiveEffectVisual visual) {
-        long elapsedTime = Util.getMillis() - visual.startTime();
+	public static boolean animationLoop(SubmitCustomGeometryEvent event, CuboidRenderer renderer,
+			ActiveEffectVisual visual) {
+		long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
 		float progress = (float) elapsedTime / MEVConfig.CLIENT.duration.get();
 
@@ -40,7 +41,7 @@ public final class MEVVisualLogic {
 			return true;
 		}
 
-        renderer.setup(event, visual.source(), progress);
+		renderer.setup(event, visual.source(), progress);
 		return false;
 	}
 

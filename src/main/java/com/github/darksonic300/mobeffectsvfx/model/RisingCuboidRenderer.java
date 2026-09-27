@@ -19,15 +19,15 @@ import org.joml.Matrix4f;
 
 public final class RisingCuboidRenderer extends CuboidRenderer {
 
-    public RisingCuboidRenderer(MobEffectCategory category, MEVColor color) {
-        super(category, color);
-    }
+	public RisingCuboidRenderer(MobEffectCategory category, MEVColor color) {
+		super(category, color);
+	}
 
-    @Override
-    public void setup(SubmitCustomGeometryEvent event, LivingEntity source, float progress) {
-        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+	@Override
+	public void setup(SubmitCustomGeometryEvent event, LivingEntity source, float progress) {
+		var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
 		PoseStack poseStack = event.getPoseStack();
-        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
+		Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
 
 		float a = calculateAlpha(color.a(), progress);
 		color = new MEVColor(color.r(), color.g(), color.b(), a);
@@ -45,7 +45,8 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 		poseStack.translate(x, y, z);
 		poseStack.scale(baseSize, baseSize, baseSize);
 
-        event.getSubmitNodeCollector().submitCustomGeometry(poseStack, this.getRenderType(), MEVVFXRenderers.get(MEVEffectTypes.RISING).apply(this.category, this.color));
+		event.getSubmitNodeCollector().submitCustomGeometry(poseStack, this.getRenderType(),
+				MEVVFXRenderers.get(MEVEffectTypes.RISING).apply(this.category, this.color));
 	}
 
 	@Override
@@ -60,26 +61,26 @@ public final class RisingCuboidRenderer extends CuboidRenderer {
 		float b_t = transparency.b();
 		float la = transparency.a();
 
-        for (int axis = 0; axis <= 1; axis++) {
-            for (int fixed = 0; fixed <= 1; fixed++) {
-                float f = (float) fixed;
-                int inv = 1 - axis;
+		for (int axis = 0; axis <= 1; axis++) {
+			for (int fixed = 0; fixed <= 1; fixed++) {
+				float f = (float) fixed;
+				int inv = 1 - axis;
 
-                float x1 = axis * f;
-                float z1 = inv * f;
-                float x2 = x1 + inv;
-                float z2 = z1 + axis;
+				float x1 = axis * f;
+				float z1 = inv * f;
+				float x2 = x1 + inv;
+				float z2 = z1 + axis;
 
-                CuboidRenderer.addVertex(buffer, matrix, x1, 0, z1, r, g, b, la);
-                CuboidRenderer.addVertex(buffer, matrix, x2, 0, z2, r, g, b, la);
-                CuboidRenderer.addVertex(buffer, matrix, x2, 0.7f, z2, r_t, g_t, b_t, a);
-                CuboidRenderer.addVertex(buffer, matrix, x1, 0.7f, z1, r_t, g_t, b_t, a);
-            }
-        }
+				CuboidRenderer.addVertex(buffer, matrix, x1, 0, z1, r, g, b, la);
+				CuboidRenderer.addVertex(buffer, matrix, x2, 0, z2, r, g, b, la);
+				CuboidRenderer.addVertex(buffer, matrix, x2, 0.7f, z2, r_t, g_t, b_t, a);
+				CuboidRenderer.addVertex(buffer, matrix, x1, 0.7f, z1, r_t, g_t, b_t, a);
+			}
+		}
 	}
 
-    @Override
-    public RenderType getRenderType() {
-        return MEVRenderTypes.BASE;
-    }
+	@Override
+	public RenderType getRenderType() {
+		return MEVRenderTypes.BASE;
+	}
 }
