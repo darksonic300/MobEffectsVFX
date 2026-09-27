@@ -20,4 +20,6 @@ public class MobEffectsVFX {
 	public static Identifier getResource(String path) {
 		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
+
+    //TODO: During effect rendering water is invisible
 }

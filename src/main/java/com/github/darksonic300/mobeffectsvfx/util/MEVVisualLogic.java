@@ -2,13 +2,14 @@ package com.github.darksonic300.mobeffectsvfx.util;
 
 import com.github.darksonic300.mobeffectsvfx.MEVConfig;
 import com.github.darksonic300.mobeffectsvfx.MEVDataManager;
-import com.github.darksonic300.mobeffectsvfx.model.IEffectRenderer;
+import com.github.darksonic300.mobeffectsvfx.model.CuboidRenderer;
 import com.github.darksonic300.mobeffectsvfx.registry.MEVParticles;
-import com.github.darksonic300.mobeffectsvfx.registry.MEVVFXRenderers;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -18,7 +19,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 public final class MEVVisualLogic {
 	private static final float PARTICLE_RANGE = 0.6F;
@@ -30,11 +31,8 @@ public final class MEVVisualLogic {
 	 * Handles animation logic for the vfx, the model definition is found in
 	 * CuboidModel.java
 	 */
-	public static boolean animationLoop(final RenderLevelStageEvent.AfterTranslucentParticles event,
-			final MultiBufferSource.BufferSource bufferSource, ActiveEffectVisual visual) {
-		MobEffectCategory effectCategory = visual.effect().getCategory();
-		MEVColor color = MEVColor.getEffectColor(visual.effect());
-		long elapsedTime = Util.getMillis() - visual.startTime();
+	public static boolean animationLoop(SubmitCustomGeometryEvent event, CuboidRenderer renderer, ActiveEffectVisual visual) {
+        long elapsedTime = Util.getMillis() - visual.startTime();
 		// Calculate animation progress (0.0 to 1.0)
 		float progress = (float) elapsedTime / MEVConfig.CLIENT.duration.get();
 
@@ -42,8 +40,7 @@ public final class MEVVisualLogic {
 			return true;
 		}
 
-		IEffectRenderer renderer = MEVVFXRenderers.get(MEVConfig.CLIENT.effect_type.get());
-		renderer.initRender(bufferSource, event, visual.source(), progress, effectCategory, color);
+        renderer.setup(event, visual.source(), progress);
 		return false;
 	}
 

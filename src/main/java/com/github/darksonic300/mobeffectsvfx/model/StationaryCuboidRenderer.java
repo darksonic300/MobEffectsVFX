@@ -1,10 +1,12 @@
 package com.github.darksonic300.mobeffectsvfx.model;
 
 import com.github.darksonic300.mobeffectsvfx.registry.MEVRenderTypes;
+import com.github.darksonic300.mobeffectsvfx.registry.MEVVFXRenderers;
 import com.github.darksonic300.mobeffectsvfx.util.MEVColor;
+import com.github.darksonic300.mobeffectsvfx.util.MEVEffectTypes;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -12,51 +14,54 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 import org.joml.Matrix4f;
 
 public final class StationaryCuboidRenderer extends CuboidRenderer {
 
-	@Override
-	public void render(PoseStack poseStack, VertexConsumer buffer, MEVColor color, MobEffectCategory category) {
-		Matrix4f matrix = poseStack.last().pose();
+    public StationaryCuboidRenderer(MobEffectCategory category, MEVColor color) {
+        super(category, color);
+    }
 
-		float la = color.a() - 0.8f;
+    @Override
+    public void setup(SubmitCustomGeometryEvent event, LivingEntity source, float progress) {
+        var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+        PoseStack poseStack = event.getPoseStack();
+        Vec3 camera = event.getLevelRenderState().cameraRenderState.pos;
+
+        float a = calculateAlpha(color.a(), progress);
+        color = new MEVColor(color.r(), color.g(), color.b(), a);
+
+        float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
+        float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
+
+        double visualX = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0);
+        double visualZ = Mth.lerp(partialTick, source.zo, source.getZ()) - (baseSize / 2.0);
+
+        double x = visualX - camera.x;
+        double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
+        double z = visualZ - camera.z;
+
+        poseStack.translate(x, y, z);
+        poseStack.scale(baseSize, height, baseSize);
+
+        event.getSubmitNodeCollector().submitCustomGeometry(poseStack, this.getRenderType(), MEVVFXRenderers.get(MEVEffectTypes.STATIONARY).apply(this.category, this.color));
+    }
+
+    @Override
+	public void render(PoseStack.Pose pose, VertexConsumer buffer) {
+		Matrix4f matrix = pose.pose();
+
+		float la = this.color.a() - 0.8f;
 		la = Mth.clamp(0, la, 1.0f);
 
-		float r_t = Math.min(1.0F, color.r() + LIGHTEN_FACTOR);
-		float g_t = Math.min(1.0F, color.g() + LIGHTEN_FACTOR);
-		float b_t = Math.min(1.0F, color.b() + LIGHTEN_FACTOR);
+		float r_t = Math.min(1.0F, this.color.r() + LIGHTEN_FACTOR);
+		float g_t = Math.min(1.0F, this.color.g() + LIGHTEN_FACTOR);
+		float b_t = Math.min(1.0F, this.color.b() + LIGHTEN_FACTOR);
 
 		MEVColor transparency = new MEVColor(r_t, g_t, b_t, la);
 
-		drawCuboid(buffer, transparency, color, matrix);
-	}
-
-	@Override
-	public void initRender(MultiBufferSource.BufferSource bufferSource,
-			RenderLevelStageEvent.AfterTranslucentParticles event, LivingEntity source, float progress,
-			MobEffectCategory effectCategory, MEVColor color) {
-		var partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
-		PoseStack poseStack = event.getPoseStack();
-		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().position();
-
-		float a = calculateAlpha(color.a(), progress);
-		color = new MEVColor(color.r(), color.g(), color.b(), a);
-
-		float baseSize = source.getDimensions(Pose.STANDING).width() + 0.7F;
-		float height = (float) ((baseSize - 0.2) * (progress) + 0.5);
-
-		double visualX = Mth.lerp(partialTick, source.xo, source.getX()) - (baseSize / 2.0);
-		double visualZ = Mth.lerp(partialTick, source.zo, source.getZ()) - (baseSize / 2.0);
-
-		double x = visualX - camera.x;
-		double y = Mth.lerp(partialTick, source.yo, source.getY()) - camera.y;
-		double z = visualZ - camera.z;
-
-		poseStack.translate(x, y, z);
-		poseStack.scale(baseSize, height, baseSize);
-
-		this.render(poseStack, bufferSource.getBuffer(MEVRenderTypes.BASE), color, effectCategory);
+		drawCuboid(buffer, transparency, this.color, matrix);
 	}
 
 	@Override
@@ -71,32 +76,26 @@ public final class StationaryCuboidRenderer extends CuboidRenderer {
 		float b_t = transparency.b();
 		float la = transparency.a();
 
-		// FRONT FACE (Z = 0)
+        for (int axis = 0; axis <= 1; axis++) {
+            for (int fixed = 0; fixed <= 1; fixed++) {
+                float f = (float) fixed;
+                int inv = 1 - axis;
 
-		addVertex(buffer, matrix, 0, 0, 0, r, g, b, la);
-		addVertex(buffer, matrix, 1, 0, 0, r, g, b, la);
-		addVertex(buffer, matrix, 1, 0.7f, 0, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 0, 0.7f, 0, r_t, g_t, b_t, a);
+                float x1 = axis * f;
+                float z1 = inv * f;
+                float x2 = x1 + inv;
+                float z2 = z1 + axis;
 
-		// BACK FACE (Z = 1)
-
-		addVertex(buffer, matrix, 0, 0, 1, r, g, b, la);
-		addVertex(buffer, matrix, 0, 0.7f, 1, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 1, 0.7f, 1, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 1, 0, 1, r, g, b, la);
-
-		// LEFT FACE (X = 0)
-
-		addVertex(buffer, matrix, 0, 0, 0, r, g, b, la);
-		addVertex(buffer, matrix, 0, 0, 1, r, g, b, la);
-		addVertex(buffer, matrix, 0, 0.7f, 1, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 0, 0.7f, 0, r_t, g_t, b_t, a);
-
-		// RIGHT FACE (X = 1)
-
-		addVertex(buffer, matrix, 1, 0, 0, r, g, b, la);
-		addVertex(buffer, matrix, 1, 0.7f, 0, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 1, 0.7f, 1f, r_t, g_t, b_t, a);
-		addVertex(buffer, matrix, 1, 0, 1f, r, g, b, la);
+                CuboidRenderer.addVertex(buffer, matrix, x1, 0, z1, r, g, b, la);
+                CuboidRenderer.addVertex(buffer, matrix, x2, 0, z2, r, g, b, la);
+                CuboidRenderer.addVertex(buffer, matrix, x2, 0.7f, z2, r_t, g_t, b_t, a);
+                CuboidRenderer.addVertex(buffer, matrix, x1, 0.7f, z1, r_t, g_t, b_t, a);
+            }
+        }
 	}
+
+    @Override
+    public RenderType getRenderType() {
+        return MEVRenderTypes.BASE;
+    }
 }
