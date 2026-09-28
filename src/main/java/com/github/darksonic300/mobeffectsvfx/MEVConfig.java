@@ -20,48 +20,48 @@ public record MEVConfig() {
 		public final ModConfigSpec.IntValue volume;
 
 		public Client(ModConfigSpec.Builder builder) {
-			builder.push("Rendering");
+			builder.push("rendering");
 			duration = builder.comment("The duration in MS for the effects.")
 					.translation("config." + MobEffectsVFX.MODID + ".duration")
 					.defineInRange("Duration", 1000, 500, 2000);
 			builder.pop();
 
-			builder.push("Rendering");
+			builder.push("rendering");
 			opacity = builder.comment("The base opacity for the effects.")
 					.translation("config." + MobEffectsVFX.MODID + ".opacity").defineInRange("Opacity", 0.8d, 0.5, 1);
 			builder.pop();
 
-			builder.push("Rendering");
+			builder.push("rendering");
 			effect_type = builder.comment("Select the type of effect you want to display.")
 					.translation("config." + MobEffectsVFX.MODID + ".effect_type")
 					.defineEnum("Effect Type", MEVEffectTypes.RISING);
 			builder.pop();
 
-			builder.push("Rendering");
+			builder.push("rendering");
 			refresh_cooldown = builder.comment("Set the cooldown time for the effects to show on apply.")
 					.translation("config." + MobEffectsVFX.MODID + ".refresh_cooldown")
 					.defineInRange("Cooldown", 150, 0, 5000);
 			builder.pop();
 
-			builder.push("General");
+			builder.push("general");
 			blocklist = builder.comment("A list of effects you want to exclude.")
 					.translation("config." + MobEffectsVFX.MODID + ".blocklist").defineListAllowEmpty("Blocklist",
 							List.of(), () -> "", obj -> Identifier.isValidPath((String) obj));
 			builder.pop();
 
-			builder.push("General");
+			builder.push("general");
 			entityBlocklist = builder.comment("A list of entities you want to exclude.")
 					.translation("config." + MobEffectsVFX.MODID + ".entityBlocklist").defineListAllowEmpty(
 							"Entity Blocklist", List.of(), () -> "", obj -> Identifier.isValidPath((String) obj));
 			builder.pop();
 
-			builder.push("Sound");
+			builder.push("sound");
 			soundEffect = builder.comment("Change the sound used when an effect is applied.")
 					.translation("config." + MobEffectsVFX.MODID + ".sound_effect")
 					.define("Sound Effect", "minecraft:block.enchantment_table.use");
 			builder.pop();
 
-			builder.push("Sound");
+			builder.push("sound");
 			volume = builder.comment("The volume value for the effect sounds.")
 					.translation("config." + MobEffectsVFX.MODID + ".volume").defineInRange("Volume", 70, 0, 100);
 			builder.pop();
