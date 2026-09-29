@@ -137,7 +137,7 @@ idea {
 
 publishMods {
     file = tasks.jar.archiveFile
-    changelog = "26.3 Release"
+    changelog = file("CHANGELOG.md").text
     type = STABLE
     modLoaders.add("neoforge")
     displayName = mod_name + " " + minecraft_version + "-" + mod_version
