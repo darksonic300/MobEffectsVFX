@@ -14,6 +14,7 @@ public class MobEffectsVFXClient {
 	public MobEffectsVFXClient(ModContainer container, IEventBus bus) {
 		MEVParticles.register(bus);
 
-        container.registerExtensionPoint(IConfigScreenFactory.class, (mc, parent) -> new ConfigurationScreen(container, parent));
+		container.registerExtensionPoint(IConfigScreenFactory.class,
+				(mc, parent) -> new ConfigurationScreen(container, parent));
 	}
 }
