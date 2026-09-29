@@ -11,25 +11,22 @@ import net.minecraft.network.codec.StreamCodec;
 
 public class MEVRisingOptions extends MEVParticleOptions {
 
-    public static final MapCodec<MEVRisingOptions> CODEC = RecordCodecBuilder.mapCodec(
-            instance -> instance.group(
-                    Codec.FLOAT.fieldOf("sourceX").forGetter(MEVRisingOptions::getSourceX),
-                    Codec.FLOAT.fieldOf("sourceY").forGetter(MEVRisingOptions::getSourceY),
-                    Codec.FLOAT.fieldOf("sourceZ").forGetter(MEVRisingOptions::getSourceZ)
-            ).apply(instance, MEVRisingOptions::new));
+	public static final MapCodec<MEVRisingOptions> CODEC = RecordCodecBuilder.mapCodec(instance -> instance
+			.group(Codec.FLOAT.fieldOf("sourceX").forGetter(MEVRisingOptions::getSourceX),
+					Codec.FLOAT.fieldOf("sourceY").forGetter(MEVRisingOptions::getSourceY),
+					Codec.FLOAT.fieldOf("sourceZ").forGetter(MEVRisingOptions::getSourceZ))
+			.apply(instance, MEVRisingOptions::new));
 
-    public static final StreamCodec<ByteBuf, MEVRisingOptions> STREAM_CODEC = StreamCodec
-            .composite(ByteBufCodecs.FLOAT, MEVRisingOptions::getSourceX,
-                    ByteBufCodecs.FLOAT, MEVRisingOptions::getSourceY,
-                    ByteBufCodecs.FLOAT, MEVRisingOptions::getSourceZ,
-                    MEVRisingOptions::new);
+	public static final StreamCodec<ByteBuf, MEVRisingOptions> STREAM_CODEC = StreamCodec.composite(ByteBufCodecs.FLOAT,
+			MEVRisingOptions::getSourceX, ByteBufCodecs.FLOAT, MEVRisingOptions::getSourceY, ByteBufCodecs.FLOAT,
+			MEVRisingOptions::getSourceZ, MEVRisingOptions::new);
 
-    public MEVRisingOptions(float sourceX, float sourceY, float sourceZ) {
-        super(sourceX, sourceY, sourceZ);
-    }
+	public MEVRisingOptions(float sourceX, float sourceY, float sourceZ) {
+		super(sourceX, sourceY, sourceZ);
+	}
 
-    @Override
-    public ParticleType<?> getType() {
-        return MEVParticles.RISING_PARTICLES.get();
-    }
+	@Override
+	public ParticleType<?> getType() {
+		return MEVParticles.RISING_PARTICLES.get();
+	}
 }
