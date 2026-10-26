@@ -1,18 +1,6 @@
 # Changelog
 
-## [26.3]
+## [26.2]
 
-### Added
-* In-game Configuration Screen
-* Translation keys localization
-* `CHANGELOG.md` file for updates
-
-### Changed
-* Ported the mod to target version 26.3
-* Internal code formatting and cleanup
-
-## [1.21.1, 26.1.2]
-
-### Added
-* In-game Configuration Screen
-* Translation keys localization
+### Changes
+* Ported the mod to target version 26.2
