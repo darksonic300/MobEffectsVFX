@@ -1,30 +1,23 @@
 package com.github.darksonic300.mobeffectsvfx.registry;
 
-import com.mojang.renderpearl.api.pipeline.CompareOp;
-import com.mojang.renderpearl.api.pipeline.DepthStencilState;
-import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 
-// I gotta redefine the LIGHTNING render type to remove culling and support triangle format
+// TODO: Fix Opacity issue
+// I gotta redefine the render types to remove culling
 public final class MEVRenderTypes {
 	public static final RenderType BASE = RenderType
 			.create("base",
 					RenderSetup
 							.builder(RenderPipelines.LIGHTNING.toBuilder()
-									.withDepthStencilState(
-											new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
 									.withCull(false).build())
-							.setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
+							.createRenderSetup());
 
 	public static final RenderType FLAT = RenderType
 			.create("flat",
 					RenderSetup
-							.builder(RenderPipelines.LIGHTNING.toBuilder()
-									.withPrimitiveTopology(PrimitiveTopology.TRIANGLES)
-									.withDepthStencilState(
-											new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
+							.builder(RenderPipelines.DRAGON_RAYS.toBuilder()
 									.withCull(false).build())
-							.setOitPipelines(RenderPipelines.OIT_LIGHTNING).sortOnUpload().createRenderSetup());
+							.createRenderSetup());
 }
