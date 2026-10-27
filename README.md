@@ -41,11 +41,11 @@ Other independant configurability options include: **VFX Opacity** and **Duratio
 🔵 - Community Version (Supported with Contributions only) <br>
 ❌ - Not Currently Planned <br><br>
 
-|   Modloader  | Up to 1.20 | 1.20.1 | 1.20.2 - 1.21 | 1.21.1 | 1.21.2 - 1.21.11 | 26.1 |
-|:------------:|:------:|:------:|:-------------:|:------:|:----------------:|:-------:|
-|     Forge    |    ❌   |    ✔️   |       ❌       |   ❌   |         ❌        |    ❌   |
-|   NeoForge   |    ❌   |    ✔️   |       ❌       |   ✅   |         ❌        |    〰️   |
-| Fabric/Quilt |    ❌   |    ❌   |       ❌       |    ❌   |         ❌        |    ❌    |
+|   Modloader  | Up to 1.20 | 1.20.1 | 1.20.2 - 1.21 | 1.21.1 | 1.21.2 - 26.1.1 | 26.1.2 | 26.2 | 26.3 |
+|:------------:|:------:|:------:|:-------------:|:------:|:----------------:|:-------:|:-------:|:-------:|
+|     Forge    |    ❌   |    ✔️   |       ❌       |   ❌   |         ❌        |    ❌   |    ❌   |    ❌   |
+|   NeoForge   |    ❌   |    ✔️   |       ❌       |   ✅   |         ❌        |    ✅   |    ✅   |    ✅   |
+| Fabric/Quilt |    ❌   |    ❌   |       ❌       |    ❌   |         ❌        |    ❌    |    ❌   |    ❌   |
 
 *Note: Pull Requests with non-planned versions are accepted outside of Fabric/Quilt, but LTS support 
 won't likely be available unless the authors themselves maintain it.*
